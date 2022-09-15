@@ -16,7 +16,7 @@ function microbe_step!(
     # update reorientation rate
     ω = turnrate(microbe, model)
     if rand() < ω*dt # if true reorient microbe
-        turn!(microbe)
+        turn!(microbe, microbe.motility)
     end # if
     return nothing
 end # function
