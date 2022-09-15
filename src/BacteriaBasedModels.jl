@@ -14,4 +14,7 @@ include("utils.jl")
 include("distributions.jl")
 include("motility.jl")
 include("microbes.jl")
+
+# ABM setup
+include("model.jl")
 end # module
