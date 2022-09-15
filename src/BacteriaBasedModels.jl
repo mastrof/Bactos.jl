@@ -17,4 +17,7 @@ include("microbes.jl")
 
 # ABM setup
 include("model.jl")
+
+# Stepping
+include("step_microbes.jl")
 end # module
