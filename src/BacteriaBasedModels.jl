@@ -7,6 +7,11 @@ using StaticArrays
 using Random
 using Rotations
 
-# Core structures
+# Utility routines
+include("utils.jl")
 
+# Core structures
+include("distributions.jl")
+include("motility.jl")
+include("microbes.jl")
 end # module
