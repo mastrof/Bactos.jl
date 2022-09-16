@@ -21,13 +21,16 @@ function rotate(w::SVector{3}, θ, ϕ)
 end # function 
 
 rotate(w::Tuple, θ, ϕ) = rotate(SVector(w), θ, ϕ)
+rotate(w::Tuple, θ) = rotate(SVector(w), θ)
 
 
 function turn!(microbe::AbstractMicrobe, motility::AbstractMotilityOneStep)
     # store actual speed
     U₀ = norm(microbe.vel)
     # perform reorientation
-    microbe.vel = rotate(microbe.vel, motility.yaw, motility.pitch) |> Tuple
+    θ = rand(motility.yaw)
+    ϕ = rand(motility.pitch)
+    microbe.vel = rotate(microbe.vel, θ, ϕ) |> Tuple
     # extract new speed from distribution
     U₁ = rand(motility.speed)
     # update speed
@@ -40,13 +43,15 @@ function turn!(microbe::AbstractMicrobe, motility::AbstractMotilityTwoStep)
     U₀ = norm(microbe.vel)
     # perform reorientation depending on current motile state
     if motility.motile_state[1] == 0
-        w = rotate(microbe.vel, motility.yaw_0, motility.pitch_0)
+        θ = rand(motility.yaw_0)
+        ϕ = rand(motility.pitch_0)
     else
-        w = rotate(microbe.vel, motility.yaw_1, motility.pitch_1)
+        θ = rand(motility.yaw_1)
+        ϕ = rand(motility.pitch_1)
     end # if
-    microbe.vel = Tuple(w)
+    microbe.vel = rotate(microbe.vel, θ, ϕ) |> Tuple
     # update motile state
-    motility.motile_state[1] = 1 - motility.motile_state
+    motility.motile_state[1] = 1 - motility.motile_state[1]
     # extract new speed from distribution
     U₁ = rand(motility.speed)
     # update speed
