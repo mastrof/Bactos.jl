@@ -10,7 +10,7 @@ function microbe_step!(
     # update microbe position
     move_agent!(microbe, model, dt)
     # reorient microbe due to rotational diffusion
-    #rotational_diffusion!(microbe, dt)
+    rotational_diffusion!(microbe, dt)
     # update microbe state
     affect!(microbe, model)
     # update reorientation rate

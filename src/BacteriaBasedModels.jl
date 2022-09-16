@@ -19,5 +19,6 @@ include("microbes.jl")
 include("model.jl")
 
 # Stepping
+include("rotations.jl")
 include("step_microbes.jl")
 end # module
