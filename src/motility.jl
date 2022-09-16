@@ -17,20 +17,7 @@ Subtypes must have at least the following fields:
 - `pitch`: distribution of out-of-plane reorientations
 For 2-dimensional microbe types, only `yaw` defines reorientations.
 """
-abstract type AbstractMotilityOneStep end
-abstract type AbstractMotilityTwoStep end
-
-Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
-    speed = Degenerate(1.0)
-    yaw = Uniform(-π, π) # in-plane
-    pitch = Uniform(0,2π) # out-of-plane
-end # struct
-
-Base.@kwdef struct RunReverse <: AbstractMotilityOneStep
-    speed = Degenerate(1.0)
-    yaw = Degenerate(π)
-    pitch = Uniform(0,2π)
-end # strut 
+abstract type AbstractMotilityOneStep <: AbstractMotility end
 
 """
     AbstractMotilityTwoStep
@@ -44,6 +31,20 @@ Subtypes must have at least the following fields:
 - `motile_state::Vector{Int}`: defines current motile state (`[0]` or `[1]`)
 For 2-dimensional microbe types, only `yaw_0` and `yaw_1` define reorientations.
 """
+abstract type AbstractMotilityTwoStep <: AbstractMotility end
+
+Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
+    speed = Degenerate(1.0)
+    yaw = Uniform(-π, π) # in-plane
+    pitch = Uniform(0,2π) # out-of-plane
+end # struct
+
+Base.@kwdef struct RunReverse <: AbstractMotilityOneStep
+    speed = Degenerate(1.0)
+    yaw = Degenerate(π)
+    pitch = Uniform(0,2π)
+end # strut 
+
 Base.@kwdef struct RunReverseFlick <: AbstractMotilityTwoStep
     speed = Degenerate(1.0)
     yaw_0 = Degenerate(π)
