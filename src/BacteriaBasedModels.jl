@@ -22,6 +22,10 @@ include("model.jl")
 include("rotations.jl")
 include("step_microbes.jl")
 
+# Chemotaxis models
+include("brown-berg.jl")
+include("brumley.jl")
+
 # Measurements
 include("msd.jl")
 include("correlation_functions.jl")
