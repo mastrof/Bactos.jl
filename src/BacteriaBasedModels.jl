@@ -21,4 +21,8 @@ include("model.jl")
 # Stepping
 include("rotations.jl")
 include("step_microbes.jl")
+
+# Measurements
+include("msd.jl")
+include("correlation_functions.jl")
 end # module
