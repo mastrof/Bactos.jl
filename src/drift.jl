@@ -15,6 +15,11 @@ instantaneous speed of the microbe.
 function driftvelocity_point(adf, target; normalize=false)
     traj = vectorize_adf_measurement(adf, :pos)
     vels = vectorize_adf_measurement(adf, :vel)
+    driftvelocity_point(traj, vels, target; normalize=normalize)
+end # function
+
+function driftvelocity_point(traj::T, vels::T, target;
+    normalize=false) where {T<:AbstractMatrix}
     v_drift = zeros(size(traj)...)
     for k in eachindex(traj)
         pos = traj[k]
@@ -46,6 +51,10 @@ instantaneous speed of the microbe.
 """
 function driftvelocity_direction(adf, target; normalize=false)
     vels = vectorize_adf_measurement(adf, :vel)
+    driftvelocity_direction(vels, target; normalize=normalize)
+end # function
+
+function driftvelocity_direction(vels::AbstractMatrix, target; normalize=false)
     if normalize
         v_drift = map(vel -> dot(vel, target) / norm(target) / norm(vel), vels)
     else
