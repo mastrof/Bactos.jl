@@ -5,4 +5,5 @@ using Test, BacteriaBasedModels, Random
     include("model_creation.jl")
     include("reorientations.jl")
     include("step.jl")
+    include("measurements.jl")
 end
