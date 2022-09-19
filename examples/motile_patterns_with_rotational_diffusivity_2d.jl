@@ -1,5 +1,4 @@
 using BacteriaBasedModels
-using Agents: run!
 using Plots
 
 L = 800.0

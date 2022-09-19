@@ -19,6 +19,7 @@ include("microbes.jl")
 include("model.jl")
 
 # Stepping
+export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
 
