@@ -1,6 +1,24 @@
 export
     initialise_model
 
+"""
+    initialise_model(;
+        microbes,
+        timestep,
+        extent, spacing = extent/20, periodic = true,
+        random_positions = true,
+        model_properties = Dict()
+    )
+Initialise an `AgentBasedModel` from population `microbes`.
+Requires the integration `timestep` and the `extent` of the simulation box.
+
+When `random_positions = true` the positions assigned to `microbes` are
+ignored and new ones, extracted randomly in the simulation box, are assigned;
+if `random_positions = false` the original positions in `microbes` are kept.
+
+Any extra property can be assigned to the model via the `model_properties`
+dictionary.
+"""
 function initialise_model(;
     microbes,
     timestep,
