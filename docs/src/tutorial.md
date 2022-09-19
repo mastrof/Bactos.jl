@@ -103,3 +103,39 @@ plot(
 )
 ```
 ![One-dimensional random walks of 8 microbes starting from same position](random_walk_1d.png)
+
+Similarly for a two-dimensional random walk, using run-reverse-flick motility and non-zero rotational diffusion:
+```julia
+dt = 0.1
+L = 100.0
+nmicrobes = 1
+microbes = [
+    Microbe{2}(
+        id=i, pos=(L/2,L/2),
+        motility=RunReverseFlick(),
+        rotational_diffusivity = 0.02,
+        ) for i in 1:nmicrobes
+]
+
+model = initialise_model(;
+    microbes = microbes,
+    timestep = dt,
+    extent = extent, periodic = false,
+    random_positions = false,
+)
+
+nsteps = 500
+adata = [:pos]
+adf, = run!(model, microbe_step!, nsteps; adata)
+
+traj = vectorize_adf_measurement(adf, :pos)
+x = first.(traj)
+y = last.(traj)
+plot(
+    x', y', line_z = (0:nsteps).*dt,
+    legend=false,
+    xlab = "x", ylab = "y",
+    colorbar = true, colorbar_title = "time"
+)
+```
+![Two-dimensional random walk using run-reverse-flick motility](random_walk_2d.png)
