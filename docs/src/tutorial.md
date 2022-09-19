@@ -139,3 +139,15 @@ plot(
 )
 ```
 ![Two-dimensional random walk using run-reverse-flick motility](random_walk_2d.png)
+
+
+Microbes with different motile patterns can also be combined in the same simulation, without extra complications or computational costs:
+```julia
+n = 3
+microbes_runtumble = [Microbe{2}(id=i, motility=RunTumble()) for i in 1:n]
+microbes_runrev = [Microbe{2}(id=n+i, motility=RunReverse()) for i in 1:n]
+microbes_runrevflick = [Microbe{2}(id=2n+1, motility=RunReverseFlick()) for i in 1:n]
+microbes = vcat(
+    microbes_runtumble, microbes_runrev, microbes_runrevflick
+)
+```
