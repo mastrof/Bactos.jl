@@ -18,11 +18,24 @@ All microbe types should have the following fields:
 abstract type AbstractMicrobe{D} <: AbstractAgent where {D<:Integer} end
 
 
+"""
+    Microbe{D} <: AbstractMicrobe{D}
+Basic microbe type for simple simulations.
+Default parameters:
+- `id::Int` → identifier used internally by Agents.jl
+- `pos::NTuple{D,Float64} = ntuple(zero,D)` → position
+- `motility = RunTumble()` → motile pattern
+- `vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed)` → velocity vector
+- `turn_rate::Float64 = 1.0` → frequency of reorientations
+- `state::Float64` → generic variable for a scalar internal state
+- `rotational_diffusivity::Float64 = 0.0` → rotational diffusion coefficient
+- `radius::Float64 = 0.0` → equivalent spherical radius of the microbe
+"""
 Base.@kwdef mutable struct Microbe{D} <: AbstractMicrobe{D}
     id::Int
-    pos::NTuple{D,Float64} = ntuple(_ -> 0.0, D)
-    vel::NTuple{D,Float64} = rand_vel(D)
+    pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunTumble()
+    vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed)
     turn_rate::Float64 = 1.0
     state::Float64 = 0.0
     rotational_diffusivity::Float64 = 0.0
