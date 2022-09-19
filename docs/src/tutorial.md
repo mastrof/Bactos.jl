@@ -64,3 +64,42 @@ AgentBasedModel with 10 agents of type Microbe
  scheduler: fastest
  properties: timestep
 ```
+
+
+## Random walks
+Now we can already generate random walks.
+The setup follows previous sections.
+```julia
+dt = 0.1
+L = 100.0
+nmicrobes = 8
+microbes = [Microbe{1}(id=i, pos=(L/2,)) for i in 1:nmicrobes]
+
+model = initialise_model(;
+    microbes = microbes,
+    timestep = dt,
+    extent = L, periodic = false,
+    random_positions = false
+)
+```
+
+Now we need to define the `adata` variable to choose what observables we want to track, throughout the simulation, for each agent in the system. In our case, only the position field
+```julia
+adata = [:pos]
+```
+Now we can run the simulation; the `microbe_step!` function will take care of the stepping and reorientations:
+```julia
+nsteps = 1000
+adf, = run!(model, microbe_step!, nsteps; adata)
+```
+
+```julia
+x = vectorize_adf_measurement(adf, :pos) .|> first
+plot(
+    (0:nsteps).*dt, x',
+    legend = false,
+    xlab = "time",
+    ylab = "position"
+)
+```
+![One-dimensional random walks of 8 microbes starting from same position](../../examples/random_walk_1d.png)

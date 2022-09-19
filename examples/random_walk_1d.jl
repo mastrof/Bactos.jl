@@ -1,5 +1,4 @@
 using BacteriaBasedModels
-using Agents: run!
 using Plots
 
 default(
@@ -15,23 +14,26 @@ default(
     margin = 3.0Plots.mm
 )
 
+dt = 0.1
+L = 100.0
+nmicrobes = 8
+microbes = [Microbe{1}(id=i, pos=(L/2,)) for i in 1:nmicrobes]
 
-L = 50.0
-vel = (1.0,)
-τ_run = 1.0
-ω = 1 / τ_run
-m = Microbe{1}(id=1, vel=vel, turn_rate=ω)
-
-Δt = 0.1
 model = initialise_model(;
-    microbes = [m],
-    timestep = Δt,
+    microbes = microbes,
+    timestep = dt,
     extent = L, periodic = false,
+    random_positions = false
 )
 
-nsteps = 10_000
-adata = [:pos, :vel]
+nsteps = 1000
+adata = [:pos]
 adf, = run!(model, microbe_step!, nsteps; adata)
 
-x = adf[!,:pos] .|> first
-plot(x.-x[1], lab=false, xlab="steps", ylab="Δx")
+x = vectorize_adf_measurement(adf, :pos) .|> first
+plot(
+    (0:nsteps).*dt, x',
+    legend = false,
+    xlab = "time",
+    ylab = "position"
+)
