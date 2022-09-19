@@ -7,7 +7,8 @@ makedocs(
     sitename = "BacteriaBasedModels.jl",
     modules = [BacteriaBasedModels],
     pages = [
-        "Home" => "index.md"
+        "Home" => "index.md",
+        "Tutorial" => "tutorial.md"
     ]
 )
 
