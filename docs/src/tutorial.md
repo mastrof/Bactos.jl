@@ -102,4 +102,4 @@ plot(
     ylab = "position"
 )
 ```
-![One-dimensional random walks of 8 microbes starting from same position](../../examples/random_walk_1d.png)
+![One-dimensional random walks of 8 microbes starting from same position](random_walk_1d.png)
