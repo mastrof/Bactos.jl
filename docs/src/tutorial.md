@@ -57,3 +57,10 @@ model = initialise_model(;
     extent = extent
 )
 ```
+
+```
+AgentBasedModel with 10 agents of type Microbe
+ space: periodic continuous space with (100.0, 100.0, 100.0) extent and spacing=5.0
+ scheduler: fastest
+ properties: timestep
+```
