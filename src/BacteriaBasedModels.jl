@@ -28,6 +28,7 @@ include("brown-berg.jl")
 include("brumley.jl")
 
 # Measurements
+include("drift.jl")
 include("msd.jl")
 include("correlation_functions.jl")
 end # module
