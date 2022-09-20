@@ -4,10 +4,10 @@ using Plots
 U = 30.0 # μm/s
 τ_run = 1.0 # s
 ω = 1 / τ_run # 1/s
-Δt = 0.1 # s
+Δt = 0.01 # s
 L = 1e4 # μm
 
-n = 100
+n = 200
 microbes_runtumble = [
     Microbe{3}(id=i,
         turn_rate=ω, vel=rand_vel(3).*U,
@@ -40,7 +40,7 @@ model = initialise_model(;
     extent = L, periodic = true
 )
 
-nsteps = 10_000
+nsteps = round(Int, 100τ_run / Δt)
 adata = [:pos, :vel]
 adf, = run!(model, microbe_step!, nsteps; adata)
 
@@ -60,9 +60,11 @@ t = range(0, (nsteps-1)*Δt; step=Δt)
 ]...) # Taktikos et al. 2013 PLoS ONE
 
 plot(
-    xlims=(0,6τ_run), ylims=(-0.1, 1.05), legend=false,
+    xlims=(0,6τ_run), ylims=(-0.1, 1.05),
     xlab="Δt / τ",
     ylab="velocity autocorrelation",
 )
-plot!(t, ϕ, lw=2, lc=[1 2 3])
-scatter!(t[1:2:end], Φ[1:2:end,:] ./ U^2, m=:x, mc=[1 2 3])
+plot!(t, ϕ, lw=2, lc=[1 2 3],
+    label=["Run-Tumble" "Run-Reverse" "Run-Reverse-Flick"])
+scatter!(t[1:10:end], Φ[1:10:end,:] ./ U^2, m=:x, mc=[1 2 3],
+    label=false)
