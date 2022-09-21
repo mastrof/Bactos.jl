@@ -22,7 +22,7 @@ dictionary.
 function initialise_model(;
     microbes,
     timestep,
-    extent, spacing = extent/20, periodic = true,
+    extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
 )
@@ -32,8 +32,16 @@ function initialise_model(;
     )
 
     space_dim = length(microbes[1].pos)
+    if typeof(extent) <: Real
+        domain = Tuple(fill(extent, space_dim))
+    else
+        if length(extent) ≠ space_dim
+            error("Space extent and microbes must have the same dimensionality.")
+        end # if
+        domain = extent
+    end # if
     space = ContinuousSpace(
-        Tuple(fill(extent, space_dim)),
+        domain,
         spacing = spacing,
         periodic = periodic
     )
