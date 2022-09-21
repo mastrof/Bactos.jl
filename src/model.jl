@@ -36,13 +36,20 @@ function initialise_model(;
     model_properties = Dict(),
     diffeq = false, ode_integrator = dummy_integrator
 )
-    properties = Dict(
-        :timestep => timestep,
-        model_properties...
-    )
-
+    # This if-else allows specialisation of the dict whenever possible.
+    # Usually not possible, but at least avoids a source of performance loss
+    # in the simplest types of simulations.
     if diffeq
-        properties[:integrator] = ode_integrator
+        properties = Dict(
+            :timestep => timestep,
+            :integrator => ode_integrator,
+            model_properties...
+        )
+    else
+        properties = Dict(
+            :timestep => timestep,
+            model_properties...
+        )
     end # if
 
     space_dim = length(microbes[1].pos)
