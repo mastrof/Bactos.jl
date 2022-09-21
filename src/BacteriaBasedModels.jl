@@ -7,6 +7,8 @@ using StaticArrays
 using Random
 using Rotations
 
+using OrdinaryDiffEq: ODEProblem, init, Tsit5, step!
+
 # Utility routines
 include("utils.jl")
 
