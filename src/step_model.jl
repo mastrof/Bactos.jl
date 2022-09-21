@@ -1,3 +1,5 @@
+export model_step!
+
 """
     model_step!(model; update_model! = (model) -> nothing)
 Update model properties through the `update_model!` function
