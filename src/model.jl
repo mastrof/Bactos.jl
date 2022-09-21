@@ -64,3 +64,17 @@ function initialise_model(;
 
     return model
 end # function
+
+"""
+    initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
+Initialise an OrdinaryDiffEq integrator, using the in-place stepping algorithm
+`ode_step!`, initial conditions `u₀` and parameters `p`.
+Default integration algorithm is `Tsit5` (others can be accessed by importing
+OrdinaryDiffEq).
+Any extra parameter can be passed over to the integrator via kwargs.
+"""
+function initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
+    prob = ODEProblem(ode_step!, u₀, (0.0, Inf), p)
+    integrator = init(prob, alg; kwargs...)
+    return integrator
+end # function
