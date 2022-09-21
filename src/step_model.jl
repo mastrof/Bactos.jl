@@ -11,7 +11,7 @@ function model_step!(model;
     update_model!::Function = (model) -> nothing)
     # if a diffeq integrator is provided, integrate over a timestep
     if haskey(model.properties, :integrator)
-        ODE.step!(model.integrator, model.timestep, true)
+        step!(model.integrator, model.timestep, true)
     end # if
     # update model properties
     update_model!(model)
