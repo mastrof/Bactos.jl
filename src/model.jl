@@ -1,5 +1,9 @@
 export
-    initialise_model
+    initialise_model, initialise_ode
+
+
+global const dummy_ODEProblem::ODEProblem = ODEProblem((du,u,p,t) -> nothing, [0.0], 0.0)
+global const dummy_integrator::DEIntegrator = init(dummy_ODEProblem, Tsit5())
 
 """
     initialise_model(;
@@ -7,7 +11,8 @@ export
         timestep,
         extent, spacing = extent/20, periodic = true,
         random_positions = true,
-        model_properties = Dict()
+        model_properties = Dict(),
+        diffeq = false, ode_integrator = dummy_integrator
     )
 Initialise an `AgentBasedModel` from population `microbes`.
 Requires the integration `timestep` and the `extent` of the simulation box.
@@ -18,6 +23,10 @@ if `random_positions = false` the original positions in `microbes` are kept.
 
 Any extra property can be assigned to the model via the `model_properties`
 dictionary.
+
+Set `diffeq = true` and provide an `ode_integrator` (e.g. through the
+`initialise_ode` function) to integrate a differential equation in parallel
+to microbe stepping.
 """
 function initialise_model(;
     microbes,
@@ -25,11 +34,16 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
+    diffeq = false, ode_integrator = dummy_integrator
 )
     properties = Dict(
         :timestep => timestep,
         model_properties...
     )
+
+    if diffeq
+        properties[:integrator] = ode_integrator
+    end # if
 
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
