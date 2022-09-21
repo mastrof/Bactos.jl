@@ -151,3 +151,93 @@ microbes = vcat(
     microbes_runtumble, microbes_runrev, microbes_runrevflick
 )
 ```
+
+## Velocity autocorrelation functions
+It's important to check that our microbes are behaving as expected.
+A way to do so is running a simulation with different motile patterns, and compare their velocity autocorrelation functions to theoretical expectations (*Taktikos et al. 2013 PLoS ONE*).
+
+First, let's set our parameters
+```julia
+U = 30.0 # μm/s
+τ_run = 1.0 # s
+ω = 1 / τ_run # 1/s
+Δt = 0.01 # s
+L = 1e4 # μm
+```
+then we can generate three distinct microbe populations, differing only in their motility, merge them all into a single population and initialise our model
+```julia
+n = 200
+microbes_runtumble = [
+    Microbe{3}(id=i,
+        turn_rate=ω, vel=rand_vel(3).*U,
+        motility=RunTumble(speed=Degenerate(U))
+    )
+    for i in 1:n
+]
+microbes_runrev = [
+    Microbe{3}(id=n+i,
+        turn_rate=ω, vel=rand_vel(3).*U,
+        motility=RunReverse(speed=Degenerate(U))
+    )
+    for i in 1:n
+]
+microbes_runrevflick = [
+    Microbe{3}(id=2n+i,
+        turn_rate=ω, vel=rand_vel(3).*U,
+        motility=RunReverseFlick(speed=Degenerate(U))
+    )
+    for i in 1:n
+]
+
+microbes = vcat(
+    microbes_runtumble, microbes_runrev, microbes_runrevflick
+)
+
+model = initialise_model(;
+    microbes = microbes,
+    timestep = Δt,
+    extent = L, periodic = true
+)
+```
+
+To evaluate the velocity autocorrelation functions, we only need to store the `:vel` field of the microbes during the simulation.
+To get a good statistics we need simulation times that are sufficiently longer than the average run length `τ_run`.
+```julia
+nsteps = round(Int, 100τ_run / Δt)
+adata = [:pos, :vel]
+adf, = run!(model, microbe_step!, nsteps; adata)
+```
+
+We can now separate the three subpopulations by their indices (more generally we could also directly filter by the motility type) and evaluate their velocity autocorrelation functions using the built-in `autocorrelation` function
+```julia
+adf_runtumble = filter(:id => id -> 1≤id≤n, adf; view=true)
+adf_runrev = filter(:id => id -> n+1≤id≤2n, adf; view=true)
+adf_runrevflick = filter(:id => id -> 2n+1≤id≤3n, adf; view=true)
+adfs = [adf_runtumble, adf_runrev, adf_runrevflick]
+
+Φ = hcat([autocorrelation(a,:vel) for a in adfs]...)
+```
+
+The theoretical values are given by *Taktikos et al. 2013 PLoS ONE*
+```julia
+t = range(0, (nsteps-1)*Δt; step=Δt)
+ϕ = hcat([
+    exp.(-t ./ τ_run),
+    exp.(-t ./ (τ_run / 2)),
+    (1 .- t ./ (2τ_run)) .* exp.(-t ./ τ_run),
+]...)
+```
+
+A comparison shows a great agreement between simulation and theory.
+```julia
+plot(
+    xlims=(0,6τ_run), ylims=(-0.1, 1.05),
+    xlab="Δt / τ",
+    ylab="velocity autocorrelation",
+)
+plot!(t, ϕ, lw=2, lc=[1 2 3],
+    label=["Run-Tumble" "Run-Reverse" "Run-Reverse-Flick"])
+scatter!(t[1:10:end], Φ[1:10:end,:] ./ U^2, m=:x, mc=[1 2 3],
+    label=false)
+```
+![Comparison between numerical and theoretical velocity autocorrelation functions for bacteria with different motile patterns](velocity_autocorrelations.png)
