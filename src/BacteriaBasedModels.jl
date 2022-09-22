@@ -8,6 +8,7 @@ using Random
 using Rotations
 
 using OrdinaryDiffEq: ODEProblem, DEIntegrator, init, Tsit5, step!
+using FiniteDifferences: central_fdm
 
 # Utility routines
 include("utils.jl")
