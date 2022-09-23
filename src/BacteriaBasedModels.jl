@@ -26,6 +26,7 @@ export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
 include("step_model.jl")
+include("finite_differences.jl")
 
 # Chemotaxis models
 include("brown-berg.jl")

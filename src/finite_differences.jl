@@ -1,3 +1,5 @@
+export finitediff!, laplacian!, divergence!
+
 # pre-computed finite difference stencils
 global const CFDM_3_1 = central_fdm(3, 1)
 global const CFDM_3_2 = central_fdm(3, 2)
