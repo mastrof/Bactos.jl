@@ -56,19 +56,38 @@ function ∂z(u::AbstractArray{Float64,3}, i::Int, j::Int, k::Int, FDM)
 end # function
 
 
-# exposed finite difference functions 
-@views function finitediff!(du::A, u::A, a, FDM=CFDM_3_1) where
+"""
+    finitediff!(ux, u, a, FDM=CFDM_3_1)
+    finitediff!(ux, uy, u, ax, ay, FDM=CFDM_3_1)
+    finitediff!(ux, uy, u, a, FDM=CFDM_3_1)
+    finitediff!(ux, uy, uz, u, ax, ay, az, FDM=CFDM_3_1)
+    finitediff!(ux, uy, uz, u, a, FDM=CFDM_3_1)
+Evaluate derivative of `u` through the finite difference stencil `FDM`
+and store the results in the appropriate arrays.
+
+If `u` has more than one dimension, it is assumed that the dimensions are
+ordered as (x, y, z).
+It is required that `size(ux) == size(uy) == size(uz) == size(u)`.
+
+By default, `FDM` is set to the 3-point stencil of the first derivative.
+`ax`, `ay` and `az` are the appropriate discretization factors
+(1/dx^n, 1/dy^n, 1/dx^n for the n-th derivative);
+if a single value `a` is given, it is expanded so that
+`ax = ay = az = a`.
+"""
+@views function finitediff!(ux::A, u::A, a::Real, FDM=CFDM_3_1) where
     {A<:AbstractVector{Float64}}
     n = length(u)
     i_start = 1 + abs(FDM.grid[1])
     i_end = n - FDM.grid[end]
     for i in i_start:i_end
-        du[i] = a * ∂x(u,i,FDM)
+        ux[i] = a * ∂x(u,i,FDM)
     end # for
 end # function
 
-@views function finitediff!(ux::A, uy::A, u::A, ax, ay, FDM=CFDM_3_1) where
-    {A<:AbstractMatrix{Float64}}
+@views function finitediff!(ux::A, uy::A, u::A,
+                            ax::B, ay::B, FDM=CFDM_3_1) where
+    {A<:AbstractMatrix{Float64}, B<:Real}
     nx, ny = size(u)
     i_start = j_start = 1 + abs(FDM.grid[1])
     i_end = nx - FDM.grid[end]
@@ -79,11 +98,12 @@ end # function
     end # for
 end # function
 
-finitediff!(ux::A, uy::A, u::A, a, FDM=CFDM_3_1) where
+finitediff!(ux::A, uy::A, u::A, a::Real, FDM=CFDM_3_1) where
     {A<:AbstractMatrix{Float64}} = finitediff!(ux, uy, u, a, a, FDM)
 
-@views function finitediff!(ux::A, uy::A, uz::A, u::A, ax, ay, az, FDM=CFDM_3_1) where
-    {A<:AbstractMatrix{Float64}}
+@views function finitediff!(ux::A, uy::A, uz::A, u::A,
+                            ax::B, ay::B, az::B, FDM=CFDM_3_1) where
+    {A<:AbstractMatrix{Float64}, B<:Real}
     nx, ny, nz = size(u)
     i_start = j_start = k_start = 1 + abs(FDM.grid[1])
     i_end = nx - FDM.grid[end]
@@ -96,17 +116,25 @@ finitediff!(ux::A, uy::A, u::A, a, FDM=CFDM_3_1) where
     end # for
 end # function
 
-finitediff!(ux::A, uy::A, uz::A, u::A, a, FDM=CFDM_3_1) where
+finitediff!(ux::A, uy::A, uz::A, u::A, a::Real, FDM=CFDM_3_1) where
     {A<:AbstractMatrix{Float64}} = finitediff!(ux, uy, uz, u, a, a, a, FDM)
 
 
-@views function laplacian!(du::A, u::A, a, FDM=CFDM_3_2) where
-    {A<:AbstractVector{Float64}}
+"""
+    laplacian!(du, u, a, FDM=CFDM_3_2)
+    laplacian!(du, u, ax, ay, FDM=CFDM_3_2)
+    laplacian!(du, u, ax, ay, az, FDM=CFDM_3_2)
+Evaluate the finite-difference laplacian of `u` (∇²u),
+storing the result in `du`.
+By default, the 3-point stencil of the 2nd derivative is used.
+"""
+@views function laplacian!(du::A, u::A, a::B, FDM=CFDM_3_2) where
+    {A<:AbstractVector{Float64}, B<:Real}
     finitediff!(du, u, a, FDM)
 end # function
 
-@views function laplacian!(du::A, u::A, ax, ay, FDM=CFDM_3_2) where
-    {A<:AbstractMatrix{Float64}}
+@views function laplacian!(du::A, u::A, ax::B, ay::B, FDM=CFDM_3_2) where
+    {A<:AbstractMatrix{Float64}, B<:Real}
     nx, ny = size(u)
     i_start = j_start = 1 + abs(FDM.grid[1])
     i_end = nx - FDM.grid[end]
@@ -116,8 +144,8 @@ end # function
     end # for
 end # function
 
-@views function laplacian!(du::A, u::A, ax, ay, az, FDM=CFDM_3_2) where
-    {A<:AbstractArray{Float64,3}}
+@views function laplacian!(du::A, u::A, ax::B, ay::B, az::B, FDM=CFDM_3_2) where
+    {A<:AbstractArray{Float64,3}, B<:Real}
     nx, ny, nz = size(u)
     i_start = j_start = k_start = 1 + abs(FDM.grid[1])
     i_end = nx - FDM.grid[end]
@@ -128,10 +156,20 @@ end # function
     end # for
 end
 
-laplacian!(du, u, a, FDM=CFDM_3_2) =
+laplacian!(du, u, a::Real, FDM=CFDM_3_2) =
     laplacian!(du, u, ntuple(_->a, ndims(u))..., FDM)
 
-
-divergence!(du, u, a, FDM=CFDM_3_1) = laplacian!(du, u, a, FDM)
-divergence!(du, u, ax, ay, FDM=CFDM_3_1) = laplacian!(du, u, ax, ay, FDM)
-divergence!(du, u, ax, ay, az, FDM=CFDM_3_1) = laplacian!(du, u, ax, ay, az, FDM)
+"""
+    divergence!(du, u, a, FDM=CFDM_3_1)
+    divergence!(du, u, ax, ay, FDM=CFDM_3_1)
+    divergence!(du, u, ax, ay, az, FDM=CFDM_3_1)
+Evaluate the finite-difference divergence of `u` (∇⋅u),
+storing the result in `du`.
+By default, the 3-point stencil of the 1st derivative is used.
+"""
+divergence!(du, u, a::Real, FDM=CFDM_3_1) =
+    laplacian!(du, u, a, FDM)
+divergence!(du, u, ax::Real, ay::Real, FDM=CFDM_3_1) =
+    laplacian!(du, u, ax, ay, FDM)
+divergence!(du, u, ax::Real, ay::Real, az::Real, FDM=CFDM_3_1) =
+    laplacian!(du, u, ax, ay, az, FDM)
