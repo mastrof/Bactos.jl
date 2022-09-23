@@ -161,15 +161,36 @@ laplacian!(du, u, a::Real, FDM=CFDM_3_2) =
 
 """
     divergence!(du, u, a, FDM=CFDM_3_1)
-    divergence!(du, u, ax, ay, FDM=CFDM_3_1)
-    divergence!(du, u, ax, ay, az, FDM=CFDM_3_1)
+    divergence!(du, ux, uy, ax, ay, FDM=CFDM_3_1)
+    divergence!(du, ux, uy, uz, ax, ay, az, FDM=CFDM_3_1)
 Evaluate the finite-difference divergence of `u` (∇⋅u),
 storing the result in `du`.
 By default, the 3-point stencil of the 1st derivative is used.
 """
-divergence!(du, u, a::Real, FDM=CFDM_3_1) =
-    laplacian!(du, u, a, FDM)
-divergence!(du, u, ax::Real, ay::Real, FDM=CFDM_3_1) =
-    laplacian!(du, u, ax, ay, FDM)
-divergence!(du, u, ax::Real, ay::Real, az::Real, FDM=CFDM_3_1) =
-    laplacian!(du, u, ax, ay, az, FDM)
+divergence!(du::A, u::A, a::Real, FDM=CFDM_3_1) where
+    {A<:AbstractVector{Float64}} = laplacian!(du, u, a, FDM)
+
+@views function divergence!(du::A, ux::A, uy::A,
+                            ax::B, ay::B, FDM=CFDM_3_1) where
+    {A<:AbstractMatrix{Float64}, B<:Real}
+    nx, ny = size(du)
+    i_start = j_start = 1 + abs(FDM.grid[1])
+    i_end = nx - FDM.grid[end]
+    j_end = ny - FDM.grid[end]
+    for j in j_start:j_end, i in i_start:i_end
+        du[i,j] = ax*∂x(ux,i,j,FDM) + ay*∂y(uy,i,j,FDM)
+    end # for
+end # function
+
+@views function divergence!(du::A, ux::A, uy::A, uz::A,
+                            ax::B, ay::B, az::B, FDM=CFDM_3_1) where
+    {A<:AbstractArray{Float64,3}, B<:Real}
+    nx, ny, nz = size(du)
+    i_start = j_start = k_start = 1 + abs(FDM.grid[1])
+    i_end = nx - FDM.grid[end]
+    j_end = ny - FDM.grid[end]
+    k_end = nz - FDM.grid[end]
+    for k in k_start:k_end, j in j_start:j_end, i in i_start:i_end
+        du[i,j,k] = ax*∂x(ux,i,j,FDM) + ay*∂y(uy,i,j,FDM) + az*∂z(uz,i,j,k,FDM)
+    end # for
+end
