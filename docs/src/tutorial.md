@@ -241,3 +241,69 @@ scatter!(t[1:10:end], Φ[1:10:end,:] ./ U^2, m=:x, mc=[1 2 3],
     label=false)
 ```
 ![Comparison between numerical and theoretical velocity autocorrelation functions for bacteria with different motile patterns](velocity_autocorrelations.png)
+
+
+## Mean-squared displacement
+It's also easy to evaluate the mean-squared displacement (MSD) of our microbes during a simulation.
+We will now run simulations of run-tumble bacteria using different reorientation distributions (parameterized by the average reorientation angle θ), and compare the MSD as a function of θ to theoretical expectations using the well-known diffusivity formula by Berg, D = U²τ/3α, where the persistence factor α=1-cosθ.
+
+We will setup our systems as usual and then run each simulation independently
+```julia
+θs = [π/6, π/4, π/3, π/2, π]
+
+U = 30.0 # μm/s 
+τ_run = 1.0 # s 
+ω = 1 / τ_run
+
+nmicrobes = 100
+microbes = [
+    [
+        Microbe{3}(
+            id = n, turn_rate = ω,
+            motility = RunTumble(speed=Degenerate(U), yaw=Degenerate(θ))
+        ) for n in 1:nmicrobes 
+    ] for θ in θs
+]
+
+dt = 0.05 # s 
+L = 500.0 # μm
+models = [
+    initialise_model(;
+        microbes = microbes[i],
+        timestep = dt, extent = L
+    ) for i in eachindex(microbes)
+]
+
+nsteps = round(Int, 100τ_run / dt)
+adata = [:pos]
+adfs = [run!(model, microbe_step!, nsteps; adata)[1] for model in models]
+```
+
+We can now evaluate the MSD for each population using the `msd` function; since the simulations were performed in a periodic domain, we will need to specify the size of the domain as a keyword argument
+```julia
+MSD = msd.(adfs; L=L)
+```
+We can now slice our experimental data and plot the results.
+```julia
+ts = (1:nsteps).*dt
+
+logslice = [1,2,5,10,25,50,100,250,500,1000]
+plot(
+    xlab = "Δt (s)",
+    ylab = "MSD (μm²/s)",
+    legend = :bottomright, legendtitle = "1-cosθ",
+    scale = :log10
+)
+scatter!(ts[logslice], hcat(MSD...)[logslice,:],
+    m=:x, ms=6, msw=2, lab=false)
+for i in eachindex(θs)
+    α = 1 - cos(θs[i])
+    τ = τ_run / α
+    D = U^2*τ / 3
+    dr² = @. 2*U^2*τ^2 * (ts/τ - 1 + exp(-ts/τ))
+    plot!(ts, dr², lab=round(α,digits=2), lc=i, lw=2)
+end # for
+plot!()
+```
+
+![Mean-squared displacement of run-tumble bacteria with different reorientation distributions](msd_runtumble.png)
