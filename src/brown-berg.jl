@@ -36,7 +36,8 @@ function brownberg_affect!(microbe, model)
     S = microbe.state # weighted dPb/dt at previous step
     u = model.concentration_field(microbe.pos, model)
     ∇u = model.concentration_gradient(microbe.pos, model)
-    du_dt = dot(microbe.vel, ∇u)
+    ∂ₜu = model.concentration_time_derivative(microbe.pos, model)
+    du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     M = KD / (KD + u)^2 * du_dt # dPb/dt from new measurement
     microbe.state = β*M + S*exp(-β) # new weighted dPb/dt
     return nothing

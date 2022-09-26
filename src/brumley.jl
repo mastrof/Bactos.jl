@@ -42,8 +42,9 @@ function brumley_affect!(microbe, model)
     κ = microbe.receptor_gain
     u = model.concentration_field(microbe.pos, model)
     ∇u = model.concentration_gradient(microbe.pos, model)
+    ∂ₜu = model.concentration_time_derivative(microbe.pos, model)
     # gradient measurement
-    μ = dot(microbe.vel, ∇u) # mean
+    μ = dot(microbe.vel, ∇u) + ∂ₜu # mean
     σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
     M = rand(Normal(μ,σ)) # measurement
     # update internal state
