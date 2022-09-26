@@ -26,22 +26,26 @@ timestep = 0.1
 x₀ = extent/2
 C = 10.0
 σ = 10.0
-D = 20.0
+D = 10.0
+β = 0.004
 u₀ = @. C * exp(-(xs-x₀)^2 / (2*σ^2))
 ∇u = zero(u₀) # to be used as storage in model
 ∂ₜu = zero(u₀) # to be used as storage in model
 finitediff!(∇u, u₀, 1/spacing)
 
 function odestep!(du, u, p, t)
-    D, _dx, = p
+    β, D, _dx, = p
     a = D * _dx * _dx
+    # diffusion
     laplacian!(du, u, a)
+    # decay
+    @. du -= β*u
     # absorbing walls
     du[1] = du[2] = du[end] = du[end-1] = 0.0
 end # function
 
 nsteps = round(Int, 500 / timestep)
-ode_integrator = initialise_ode(odestep!, u₀, (D, 1/spacing);
+ode_integrator = initialise_ode(odestep!, u₀, (β, D, 1/spacing);
                                 dtmax = spacing^2/2D,
                                 saveat = (0:nsteps) .* timestep)
 
