@@ -1,4 +1,4 @@
-export MicrobeBrownBerg, brownberg_affect!, brownberg_turnrate
+export MicrobeBrownBerg, brownberg_affect!, brownberg_turnrate, microbe_step!
 
 
 """
@@ -47,4 +47,12 @@ function brownberg_turnrate(microbe, model)
     g = microbe.motor_gain
     S = microbe.state
     return ν₀*exp(-g*S) # modulated turn rate
+end # function
+
+function microbe_step!(microbe::MicrobeBrownBerg, model)
+    microbe_step!(
+        microbe, model;
+        affect! = brownberg_affect!,
+        turnrate = brownberg_turnrate
+    )
 end # function
