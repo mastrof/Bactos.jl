@@ -34,8 +34,8 @@ function brownberg_affect!(microbe, model)
     β = Δt / τₘ # memory loss factor
     KD = microbe.receptor_binding_constant
     S = microbe.state # weighted dPb/dt at previous step
-    u = model.concentration_field(microbe.pos)
-    ∇u = model.concentration_gradient(microbe.pos)
+    u = model.concentration_field(microbe.pos, model)
+    ∇u = model.concentration_gradient(microbe.pos, model)
     du_dt = dot(microbe.vel, ∇u)
     M = KD / (KD + u)^2 * du_dt # dPb/dt from new measurement
     microbe.state = β*M + S*exp(-β) # new weighted dPb/dt

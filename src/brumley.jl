@@ -40,8 +40,8 @@ function brumley_affect!(microbe, model)
     a = microbe.radius
     Π = microbe.chemotactic_precision
     κ = microbe.receptor_gain
-    u = model.concentration_field(microbe.pos)
-    ∇u = model.concentration_gradient(microbe.pos)
+    u = model.concentration_field(microbe.pos, model)
+    ∇u = model.concentration_gradient(microbe.pos, model)
     # gradient measurement
     μ = dot(microbe.vel, ∇u) # mean
     σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
