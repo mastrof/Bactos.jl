@@ -27,8 +27,8 @@ concentration_field(pos) = conc_field(pos[1], pos[2], C, σ, x₀, y₀)
 concentration_gradient(pos) = conc_grad(pos[1], pos[2], C, σ, x₀, y₀)
 
 model_properties = Dict(
-    :concentration_field => concentration_field,
-    :concentration_gradient => concentration_gradient,
+    :concentration_field => (pos,_) -> concentration_field(pos),
+    :concentration_gradient => (pos,_) -> concentration_gradient(pos),
     :compound_diffusivity => 500.0, # μm²/s
 )
 
