@@ -1,5 +1,6 @@
 using BacteriaBasedModels
 using Agents: get_spatial_index
+using OrdinaryDiffEq: get_du!
 using Plots
 default(
     thickness_scaling = 1.5,
@@ -28,6 +29,7 @@ C = 10.0
 D = 20.0
 u₀ = @. C * exp(-(xs-x₀)^2 / (2*σ^2))
 ∇u = zero(u₀) # to be used as storage in model
+∂ₜu = zero(u₀) # to be used as storage in model
 finitediff!(∇u, u₀, 1/spacing)
 
 function odestep!(du, u, p, t)
@@ -51,12 +53,18 @@ function _concentration_gradient(pos, model)
     pos_idx = get_spatial_index(pos, model.xmesh, model)
     return model.∇u[pos_idx]
 end # function
+function _concentration_time_derivative(pos, model)
+    pos_idx = get_spatial_index(pos, model.xmesh, model)
+    return model.∂ₜu[pos_idx]
+end # function
                                 
 model_properties = Dict(
     :xmesh => xs,
     :∇u => ∇u,
+    :∂ₜu => ∂ₜu,
     :concentration_field => _concentration_field,
-    :concentration_gradient => _concentration_gradient
+    :concentration_gradient => _concentration_gradient,
+    :concentration_time_derivative => _concentration_time_derivative
 )
 
 model = initialise_model(;
@@ -81,7 +89,10 @@ my_microbe_step!(microbe, model) = microbe_step!(
 )
 
 function update_model!(model)
+    # update gradient
     finitediff!(model.∇u, model.integrator.u, 1/model.space.spacing)
+    # update time derivative 
+    get_du!(model.∂ₜu, model.integrator)
 end # function
 
 my_model_step!(model) = model_step!(model; update_model!)
