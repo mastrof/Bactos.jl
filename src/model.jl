@@ -1,5 +1,9 @@
 export
-    initialise_model
+    initialise_model, initialise_ode
+
+
+global const dummy_ODEProblem::ODEProblem = ODEProblem((du,u,p,t) -> nothing, [0.0], 0.0)
+global const dummy_integrator::DEIntegrator = init(dummy_ODEProblem, Tsit5())
 
 """
     initialise_model(;
@@ -7,7 +11,8 @@ export
         timestep,
         extent, spacing = extent/20, periodic = true,
         random_positions = true,
-        model_properties = Dict()
+        model_properties = Dict(),
+        diffeq = false, ode_integrator = dummy_integrator
     )
 Initialise an `AgentBasedModel` from population `microbes`.
 Requires the integration `timestep` and the `extent` of the simulation box.
@@ -18,6 +23,10 @@ if `random_positions = false` the original positions in `microbes` are kept.
 
 Any extra property can be assigned to the model via the `model_properties`
 dictionary.
+
+Set `diffeq = true` and provide an `ode_integrator` (e.g. through the
+`initialise_ode` function) to integrate a differential equation in parallel
+to microbe stepping.
 """
 function initialise_model(;
     microbes,
@@ -25,11 +34,23 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
+    diffeq = false, ode_integrator = dummy_integrator
 )
-    properties = Dict(
-        :timestep => timestep,
-        model_properties...
-    )
+    # This if-else allows specialisation of the dict whenever possible.
+    # Usually not possible, but at least avoids a source of performance loss
+    # in the simplest types of simulations.
+    if diffeq
+        properties = Dict(
+            :timestep => timestep,
+            :integrator => ode_integrator,
+            model_properties...
+        )
+    else
+        properties = Dict(
+            :timestep => timestep,
+            model_properties...
+        )
+    end # if
 
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
@@ -63,4 +84,18 @@ function initialise_model(;
     end # for
 
     return model
+end # function
+
+"""
+    initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
+Initialise an OrdinaryDiffEq integrator, using the in-place stepping algorithm
+`ode_step!`, initial conditions `u₀` and parameters `p`.
+Default integration algorithm is `Tsit5` (others can be accessed by importing
+OrdinaryDiffEq).
+Any extra parameter can be passed over to the integrator via kwargs.
+"""
+function initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
+    prob = ODEProblem(ode_step!, u₀, (0.0, Inf), p)
+    integrator = init(prob, alg; kwargs...)
+    return integrator
 end # function

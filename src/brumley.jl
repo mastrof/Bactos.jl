@@ -40,10 +40,11 @@ function brumley_affect!(microbe, model)
     a = microbe.radius
     Π = microbe.chemotactic_precision
     κ = microbe.receptor_gain
-    u = model.concentration_field(microbe.pos)
-    ∇u = model.concentration_gradient(microbe.pos)
+    u = model.concentration_field(microbe.pos, model)
+    ∇u = model.concentration_gradient(microbe.pos, model)
+    ∂ₜu = model.concentration_time_derivative(microbe.pos, model)
     # gradient measurement
-    μ = dot(microbe.vel, ∇u) # mean
+    μ = dot(microbe.vel, ∇u) + ∂ₜu # mean
     σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
     M = rand(Normal(μ,σ)) # measurement
     # update internal state
@@ -57,4 +58,12 @@ function brumley_turnrate(microbe, model)
     Γ = microbe.motor_gain
     S = microbe.state
     return (1 + exp(-Γ*S)) * ν₀/2 # modulated turn rate
+end # function
+
+function microbe_step!(microbe::MicrobeBrumley, model)
+    microbe_step!(
+        microbe, model;
+        affect! = brumley_affect!,
+        turnrate = brumley_turnrate
+    )
 end # function

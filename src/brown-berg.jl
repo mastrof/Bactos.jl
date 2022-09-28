@@ -1,4 +1,4 @@
-export MicrobeBrownBerg, brownberg_affect!, brownberg_turnrate
+export MicrobeBrownBerg, brownberg_affect!, brownberg_turnrate, microbe_step!
 
 
 """
@@ -34,9 +34,10 @@ function brownberg_affect!(microbe, model)
     β = Δt / τₘ # memory loss factor
     KD = microbe.receptor_binding_constant
     S = microbe.state # weighted dPb/dt at previous step
-    u = model.concentration_field(microbe.pos)
-    ∇u = model.concentration_gradient(microbe.pos)
-    du_dt = dot(microbe.vel, ∇u)
+    u = model.concentration_field(microbe.pos, model)
+    ∇u = model.concentration_gradient(microbe.pos, model)
+    ∂ₜu = model.concentration_time_derivative(microbe.pos, model)
+    du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     M = KD / (KD + u)^2 * du_dt # dPb/dt from new measurement
     microbe.state = β*M + S*exp(-β) # new weighted dPb/dt
     return nothing
@@ -47,4 +48,12 @@ function brownberg_turnrate(microbe, model)
     g = microbe.motor_gain
     S = microbe.state
     return ν₀*exp(-g*S) # modulated turn rate
+end # function
+
+function microbe_step!(microbe::MicrobeBrownBerg, model)
+    microbe_step!(
+        microbe, model;
+        affect! = brownberg_affect!,
+        turnrate = brownberg_turnrate
+    )
 end # function

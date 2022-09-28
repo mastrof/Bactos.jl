@@ -37,4 +37,31 @@ using Test, BacteriaBasedModels, Random
     model2 = custom_init((1.0, 2.0, 3.0))
     @test model1.space.extent == (1.0, 1.0, 1.0)
     @test model2.space.extent == (1.0, 2.0, 3.0)
+
+    @testset "Differential equations" begin
+        microbes = [Microbe{1}(id=0)]
+        timestep = 0.1
+        extent = 1.0
+        model = initialise_model(; microbes, timestep, extent)
+        @test !haskey(model.properties, :integrator)
+        @test typeof(model.properties) == Dict{Symbol, Float64}
+        model = initialise_model(; microbes, timestep, extent, diffeq=true)
+        @test haskey(model.properties, :integrator)
+        @test model.integrator == BacteriaBasedModels.dummy_integrator
+        @test typeof(model.properties) == Dict{Symbol, Any}
+
+        my_ode_step!(du, u, p, t) = (du .= p[1])
+        u₀ = [0.0]
+        p = (1.0,)
+        integrator = initialise_ode(my_ode_step!, u₀, p)
+        model = initialise_model(;
+            microbes, timestep, extent,
+            diffeq = true, ode_integrator = integrator
+        )
+        @test model.integrator === integrator
+        n = 5
+        run!(model, microbe_step!, model_step!, n)
+        @test model.integrator === integrator
+        @test integrator.u[1] ≈ p[1] * timestep * n
+    end
 end

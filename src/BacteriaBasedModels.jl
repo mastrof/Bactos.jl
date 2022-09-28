@@ -7,6 +7,9 @@ using StaticArrays
 using Random
 using Rotations
 
+using OrdinaryDiffEq: ODEProblem, DEIntegrator, init, Tsit5, step!
+using FiniteDifferences: central_fdm
+
 # Utility routines
 include("utils.jl")
 
@@ -22,6 +25,8 @@ include("model.jl")
 export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
+include("step_model.jl")
+include("finite_differences.jl")
 
 # Chemotaxis models
 include("brown-berg.jl")
