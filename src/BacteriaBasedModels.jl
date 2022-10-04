@@ -28,6 +28,9 @@ include("step_microbes.jl")
 include("step_model.jl")
 include("finite_differences.jl")
 
+# Surfaces
+include("obstacles_spheres.jl")
+
 # Chemotaxis models
 include("brown-berg.jl")
 include("brumley.jl")
