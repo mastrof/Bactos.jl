@@ -38,8 +38,8 @@ function stick!(microbe, sphere::ObstacleSphere, model)
         b = 2.0 * dot(x.-y, s)
         c = d*d - R*R
         ε = -b/2a * (1 - sqrt(1 - 4*a*c/(b*b)))
-        z = @. x + ε*s
-        move_agent!(microbe, z, model)
+        z = @. ε*s
+        walk!(microbe, z, model)
     end # if
 end # function
 
@@ -57,8 +57,8 @@ function glide!(microbe, sphere::ObstacleSphere, model)
         a = sum(abs2.(s))
         c = d*d - R*R
         ε = 1 - sqrt(1 - c/a)
-        z = @. x + ε*s
-        move_agent!(microbe, z, model)
+        z = @. ε*s
+        walk!(microbe, z, model)
     end # if
 end # function
 
@@ -85,8 +85,8 @@ function bounce!(microbe, sphere::ObstacleSphere, model; ζ=1.0)
         b = 2.0 * dot(x.-y, s)
         c = d*d - R*R
         ε = -b/2a * (1 - sqrt(1 - 4*a*c/(b*b)))
-        z = @. x + (1+ζ)*ε*s
-        move_agent!(microbe, z, model)
+        z = @. (1+ζ)*ε*s
+        walk!(microbe, z, model)
         microbe.vel = .-microbe.vel
     end # if
 end # function
