@@ -1,5 +1,6 @@
 export
-    init_neighborlist, surface_interaction!
+    init_neighborlist, update_microbepos_neighborlist!,
+    surface_interaction!
 
 """
     init_neighborlist(microbes::Vector, bodies::Vector, extent, cutoff::Float64, periodic::Bool)
@@ -19,6 +20,16 @@ function init_neighborlist(microbes, bodies, extent, periodic, cutoff)
     )
 end # function
 
+"""
+    update_microbepos_neighborlist!(microbe, model)
+Update the position of `microbe` in `model.neighborlist`;
+required for correct evaluation of interactions.
+This function must be passed as the `affect!` function to
+`microbe_step!`.
+"""
+function update_microbepos_neighborlist!(microbe, model)
+    model.neighborlist.xpositions[microbe.id] = SVector(microbe.pos)
+end # function
 
 function surface_interaction!(x,y,i,j,d²,f,model)
     body = model.bodies[j]
