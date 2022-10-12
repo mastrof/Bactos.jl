@@ -1,7 +1,7 @@
 module BacteriaBasedModels
 
 using Agents
-using CellListMap
+using CellListMap.PeriodicSystems
 using Distributions
 using LinearAlgebra
 using StaticArrays
