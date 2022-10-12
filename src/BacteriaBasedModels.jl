@@ -1,6 +1,7 @@
 module BacteriaBasedModels
 
 using Agents
+using CellListMap
 using Distributions
 using LinearAlgebra
 using StaticArrays
@@ -30,6 +31,7 @@ include("finite_differences.jl")
 
 # Surfaces
 include("obstacles_spheres.jl")
+include("celllistmap.jl")
 
 # Chemotaxis models
 include("brown-berg.jl")
