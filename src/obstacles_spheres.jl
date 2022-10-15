@@ -67,7 +67,7 @@ end # function
 `microbe` is reflected off the `sphere` surface, inverting
 the direction of its `vel` field.
 
-The parameter `ζ` is the absorption factor of the sphere;
+The parameter `ζ` is the elastic coefficient of the collision;
 for `ζ=1` the collision is perfectly elastic (microbe run length is conserved);
 for `ζ=0` the microbe sticks to the surface (but vel is inverted).
 """
@@ -86,7 +86,15 @@ function bounce!(microbe, sphere::ObstacleSphere, model; ζ=1.0)
         c = d*d - R*R
         ε = -b/2a * (1 - sqrt(1 - 4*a*c/(b*b)))
         z = @. (1+ζ)*ε*s
-        walk!(microbe, z, model)
-        microbe.vel = .-microbe.vel
+        # hit surface
+        z₁ = @. ε*s
+        walk!(microbe, z₁, model)
+        # reorient
+        r_hat = (y.-x)./d
+        deflection = -2 .* dot(microbe.vel, r_hat) .* r_hat
+        microbe.vel = @. ζ * (microbe.vel + deflection)
+        # bounce
+        z₂ = @. ε * (microbe.vel * model.timestep)
+        walk!(microbe, z₂, model)
     end # if
 end # function
