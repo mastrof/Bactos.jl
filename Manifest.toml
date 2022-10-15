@@ -2,7 +2,7 @@
 
 julia_version = "1.8.0"
 manifest_format = "2.0"
-project_hash = "31a5af6d1b8d20033069a827f3ded1d85f280889"
+project_hash = "7f7e62c999e75e36ed5ab9ca82007047d3f90894"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -96,6 +96,12 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
 uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 version = "0.5.1"
+
+[[deps.CellListMap]]
+deps = ["DocStringExtensions", "LinearAlgebra", "Parameters", "ProgressMeter", "Random", "Setfield", "StaticArrays", "TestItems"]
+git-tree-sha1 = "0701ac06bff4d16b33f370364b7a434b2ea62b6b"
+uuid = "69e1c6dd-3888-40e6-b3c8-31ac5f578864"
+version = "0.8.4"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
@@ -990,6 +996,11 @@ version = "1.10.0"
 [[deps.Test]]
 deps = ["InteractiveUtils", "Logging", "Random", "Serialization"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[[deps.TestItems]]
+git-tree-sha1 = "b7aab261a1662071e1c976b18ad2cee88e27d04a"
+uuid = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
+version = "0.1.0"
 
 [[deps.ThreadingUtilities]]
 deps = ["ManualMemory"]
