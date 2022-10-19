@@ -62,14 +62,15 @@ function celani_affect!(microbe::CelaniNoisy, model)
     Δt = model.timestep
     Dc = model.compound_diffusivity
     u = model.concentration_field(microbe.pos, model)
-    ∇u = model.concentration_gradient(microbe.pos, model)
-    ∂ₜu = model.concentration_time_derivative(microbe.pos, model)
-    du_dt = dot(microbe.vel, ∇u) + ∂ₜu
+    #∇u = model.concentration_gradient(microbe.pos, model)
+    #∂ₜu = model.concentration_time_derivative(microbe.pos, model)
+    #du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     a = microbe.radius
     Π = microbe.chemotactic_precision
-    σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
+    # σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
+    σ = Π * sqrt(3*u / (5*π*Dc*a*Δt)) # noise
     # SHOULD BE A NOISY MEASUREMENT OF U, NOT DU/DT
-    M = rand(Normal(du_dt,σ)) # measurement
+    M = rand(Normal(u,σ)) # measurement
     γ = microbe.memory
     λ = 1/γ
     β = microbe.gain

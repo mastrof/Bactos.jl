@@ -12,19 +12,16 @@ function conc_grad(x,y,C,σ,x₀,y₀)
     ]
 end # function
 
-using Random
-Random.seed!(3)
-
 U = 30.0
 motility = RunTumble(speed=Degenerate(U))
 
-nmicrobes = 100
+nmicrobes = 1000
 microbes = [
-    Celani{2}(id = i, gain=50.0, memory=0.5,
+    CelaniNoisy{2}(id = i, gain=500.0, memory=0.5,
                    vel=rand_vel(2).*U,
                    motility=motility,
-                   rotational_diffusivity=0.1,)
-                   #chemotactic_precision=0.0)
+                   rotational_diffusivity=0.,
+                   chemotactic_precision=0.0)
     for i in 1:nmicrobes
 ]
 
@@ -32,8 +29,8 @@ microbes = [
 dt = 0.1 # s
 L = 1500.0 # μm
 # field properties
-C = 50.0 # μM 
-σ = 35.0 # μm 
+C = 5.0 # μM 
+σ = 55.0 # μm 
 x₀ = y₀ = L/2 # μm 
 concentration_field(pos) = conc_field(pos[1], pos[2], C, σ, x₀, y₀)
 concentration_gradient(pos) = conc_grad(pos[1], pos[2], C, σ, x₀, y₀)
@@ -48,7 +45,7 @@ model_properties = Dict(
 model = initialise_model(;
     microbes = microbes,
     timestep = dt,
-    extent = L, periodic = false,
+    extent = L, periodic = true,
     model_properties = model_properties
 )
 
@@ -61,15 +58,20 @@ traj = vectorize_adf_measurement(adf, :pos)
 x = first.(traj)'
 y = last.(traj)'
 
-
-contourf(
-    0:L/50:L, 0:L/50:L,
-    (x,y) -> concentration_field((x,y)),
-    color=:bone, ratio=1
-)
-plot!(
-    x, y, lw=0.4,
-    colorbar=false, legend=false,
-    xlims=(0,L), ylims=(0,L),
-    bgcolor=:black, axis=false
-)
+i = 2
+if i==1
+    contourf(
+        0:L/50:L, 0:L/50:L,
+        (x,y) -> concentration_field((x,y)),
+        color=:bone, ratio=1
+    )
+    plot!(
+        x, y, lw=0.4,
+        colorbar=false, legend=false,
+        xlims=(0,L), ylims=(0,L),
+        bgcolor=:black, axis=false
+    )
+elseif i==2
+    h = fit(Histogram, (vec(x),vec(y)), nbins=50)
+    heatmap(h.weights, bgcolor=:black, axis=false)
+end # if
