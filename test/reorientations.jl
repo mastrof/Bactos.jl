@@ -42,8 +42,8 @@ using Distributions
 
         vel = rand_vel(2)
         motility = RunReverseFlick(
-            yaw_0 = Degenerate(π),
-            yaw_1 = Degenerate(π/2),
+            polar_0 = Degenerate(π),
+            polar_1 = Degenerate(π/2),
             motile_state = [0]
         )
         m = Microbe{2}(id=1, vel=vel, motility=motility)
@@ -64,10 +64,10 @@ using Distributions
     @testset "Three-dimensional reorientations" begin
         vel = rand_vel(3)
         motility = RunReverseFlick(
-            yaw_0 = Degenerate(π),
-            pitch_0 = Uniform(0,2π),
-            yaw_1 = Degenerate(π/2),
-            pitch_1 = Uniform(0,2π),
+            polar_0 = Degenerate(π),
+            azimuthal_0 = Arccos(-1,1),
+            polar_1 = Degenerate(π/2),
+            azimuthal_1 = Arccos(-1,1),
             motile_state = [0]
         )
         m = Microbe{3}(id=1, vel=vel, motility=motility)
