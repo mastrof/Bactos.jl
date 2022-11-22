@@ -36,20 +36,20 @@ abstract type AbstractMotilityTwoStep <: AbstractMotility end
 Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
     speed = Degenerate(1.0)
     polar = Uniform(-π, π) # in-plane
-    azimuthal = Uniform(0,2π) # out-of-plane
+    azimuthal = Arccos(-1, 1) # out-of-plane
 end # struct
 
 Base.@kwdef struct RunReverse <: AbstractMotilityOneStep
     speed = Degenerate(1.0)
     polar = Degenerate(π)
-    azimuthal = Uniform(0,2π)
+    azimuthal = Arccos(-1, 1)
 end # strut 
 
 Base.@kwdef struct RunReverseFlick <: AbstractMotilityTwoStep
     speed = Degenerate(1.0)
     polar_0 = Degenerate(π)
-    azimuthal_0 = Uniform(0,2π)
+    azimuthal_0 = Arccos(-1, 1)
     polar_1 = Degenerate(π/2)
-    azimuthal_1 = Uniform(0,2π)
+    azimuthal_1 = Arccos(-1, 1)
     motile_state::Vector{Int} = rand(0:1, 1)
 end # struct 
