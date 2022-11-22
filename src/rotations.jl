@@ -28,8 +28,8 @@ function turn!(microbe::AbstractMicrobe, motility::AbstractMotilityOneStep)
     # store actual speed
     U₀ = norm(microbe.vel)
     # perform reorientation
-    θ = rand(motility.yaw)
-    ϕ = rand(motility.pitch)
+    θ = rand(motility.polar)
+    ϕ = rand(motility.azimuthal)
     microbe.vel = rotate(microbe.vel, θ, ϕ) |> Tuple
     # extract new speed from distribution
     U₁ = rand(motility.speed)
@@ -43,11 +43,11 @@ function turn!(microbe::AbstractMicrobe, motility::AbstractMotilityTwoStep)
     U₀ = norm(microbe.vel)
     # perform reorientation depending on current motile state
     if motility.motile_state[1] == 0
-        θ = rand(motility.yaw_0)
-        ϕ = rand(motility.pitch_0)
+        θ = rand(motility.polar_0)
+        ϕ = rand(motility.azimuthal_0)
     else
-        θ = rand(motility.yaw_1)
-        ϕ = rand(motility.pitch_1)
+        θ = rand(motility.polar_1)
+        ϕ = rand(motility.azimuthal_1)
     end # if
     microbe.vel = rotate(microbe.vel, θ, ϕ) |> Tuple
     # update motile state
@@ -65,9 +65,9 @@ function rotational_diffusion!(microbe::AbstractMicrobe, dt)
     D_rot = microbe.rotational_diffusivity
     σ = sqrt(2*D_rot*dt)
     #== this might be wrong ==#
-    yaw = rand(Normal(0, σ))
-    pitch = rand(Uniform(0, 2π))
+    polar = rand(Normal(0, σ))
+    azimuthal = rand(Uniform(0, 2π))
     #==#
-    microbe.vel = Tuple(rotate(microbe.vel, yaw, pitch))
+    microbe.vel = Tuple(rotate(microbe.vel, polar, azimuthal))
     return nothing
 end # function 
