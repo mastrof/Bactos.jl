@@ -11,17 +11,14 @@ function conc_grad(x,y,C,σ,x₀,y₀)
     ]
 end # function
 
-nmicrobes = 5
-microbes = [
-    MicrobeBrumley{2}(id = i, chemotactic_precision = 1.0)
-    for i in 1:nmicrobes
-]
+nmicrobes = 10
+microbes = [MicrobeBrumley{2}(id=i) for i in 1:nmicrobes]
 
 dt = 0.1 # s
-L = 400.0 # μm
+L = 500.0 # μm
 # field properties
-C = 30.0 # μM 
-σ = 50.0 # μm 
+C = 0.1 # μM 
+σ = 20.0 # μm 
 x₀ = y₀ = L/2 # μm 
 concentration_field(pos) = conc_field(pos[1], pos[2], C, σ, x₀, y₀)
 concentration_gradient(pos) = conc_grad(pos[1], pos[2], C, σ, x₀, y₀)
@@ -29,6 +26,7 @@ concentration_gradient(pos) = conc_grad(pos[1], pos[2], C, σ, x₀, y₀)
 model_properties = Dict(
     :concentration_field => (pos,_) -> concentration_field(pos),
     :concentration_gradient => (pos,_) -> concentration_gradient(pos),
+    :concentration_time_derivative => (_,_) -> 0.0,
     :compound_diffusivity => 500.0, # μm²/s
 )
 
