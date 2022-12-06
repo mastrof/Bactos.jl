@@ -67,9 +67,7 @@ function celani_affect!(microbe::CelaniNoisy, model)
     #du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     a = microbe.radius
     Π = microbe.chemotactic_precision
-    # σ = Π * sqrt(3*u / (π*a*Dc*Δt^3)) # noise
-    σ = Π * sqrt(3*u / (5*π*Dc*a*Δt)) # noise
-    # SHOULD BE A NOISY MEASUREMENT OF U, NOT DU/DT
+    σ = Π * 0.04075 * sqrt(3*u / (5*π*Dc*a*Δt)) # noise (Berg-Purcell)
     M = rand(Normal(u,σ)) # measurement
     γ = microbe.memory
     λ = 1/γ
