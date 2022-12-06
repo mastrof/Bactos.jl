@@ -3,8 +3,9 @@ export Celani, CelaniNoisy, celani_affect!, celani_turnrate, microbe_step!
 abstract type AbstractCelani{D} <: AbstractMicrobe{D} end
 
 """
-    Celani{D} <: AbstractMicrobe{D}
+    Celani{D} <: <: AbstractCelani{D} <: AbstractMicrobe{D}
 Model of chemotactic bacterium using the response kernel from 'Celani and Vergassola (2010) PNAS'.
+
 Default parameters:
 - motility = RunTumble(speed = Degenerate(30.0))
 - turn_rate = 1.49 Hz
@@ -27,6 +28,24 @@ Base.@kwdef mutable struct Celani{D} <: AbstractCelani{D}
     radius::Float64 = 0.5 # μm
 end # struct
 
+"""
+    CelaniNoisy{D} <: AbstractCelani{D} <: AbstractMicrobe{D}
+Model of chemotactic bacterium using the response kernel from 'Celani and Vergassola (2010) PNAS'
+with a custom implementation of noisy sensing based on 'Berg and Purcell (1977) Biophys J'.
+The intensity of noise implicit in bacterial sensing is represented by a dimensionless
+factor `chemotactic_precision` (same approach used by 'Brumley et al. (2019) PNAS').
+`chemotactic_precision = 1` represents the minimum theoretical noise.
+
+Default parameters:
+- motility = RunTumble(speed = Degenerate(30.0))
+- turn_rate = 1.49 Hz
+- state = zeros(4)
+- rotational_diffusivity = 0.26 rad²/s
+- gain = 50.0
+- memory = 1 s
+- chemotactic_precision = 1.0
+- radius = 0 μm
+"""
 Base.@kwdef mutable struct CelaniNoisy{D} <: AbstractCelani{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
