@@ -44,9 +44,6 @@ end # struct
 function celani_affect!(microbe::Celani, model)
     Δt = model.timestep
     u = model.concentration_field(microbe.pos, model)
-    #∇u = model.concentration_gradient(microbe.pos, model)
-    #∂ₜu = model.concentration_time_derivative(microbe.pos, model)
-    #du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     γ = microbe.memory
     λ = 1/γ
     β = microbe.gain
@@ -62,9 +59,6 @@ function celani_affect!(microbe::CelaniNoisy, model)
     Δt = model.timestep
     Dc = model.compound_diffusivity
     u = model.concentration_field(microbe.pos, model)
-    #∇u = model.concentration_gradient(microbe.pos, model)
-    #∂ₜu = model.concentration_time_derivative(microbe.pos, model)
-    #du_dt = dot(microbe.vel, ∇u) + ∂ₜu
     a = microbe.radius
     Π = microbe.chemotactic_precision
     σ = Π * 0.04075 * sqrt(3*u / (5*π*Dc*a*Δt)) # noise (Berg-Purcell)
