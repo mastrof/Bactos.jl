@@ -36,6 +36,7 @@ include("celllistmap.jl")
 # Chemotaxis models
 include("brown-berg.jl")
 include("brumley.jl")
+include("celani.jl")
 
 # Measurements
 include("drift.jl")
