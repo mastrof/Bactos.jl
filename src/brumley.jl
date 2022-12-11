@@ -7,7 +7,7 @@ Model of chemotactic bacterium from 'Brumley et al. (2019) PNAS'.
 The model is optimized for simulation of marine bacteria and accounts
 for the presence of (gaussian) sensing noise in the chemotactic pathway.
 Default parameters:
-- motility = RunReverseFlick(speed = Degenerate(46.5))
+- motility = RunReverseFlick(speed_forward = Degenerate(46.5))
 - turn_rate = 2.22 Hz → '1/τ₀'
 - state = 0.0 → 'S'
 - rotational_diffusivity = 0.035 rad²/S
@@ -20,8 +20,8 @@ Default parameters:
 Base.@kwdef mutable struct MicrobeBrumley{D} <: AbstractMicrobe{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
-    motility = RunReverseFlick(speed = Degenerate(46.5))
-    vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed)    
+    motility = RunReverseFlick(speed_forward = Degenerate(46.5))
+    vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed_forward)
     turn_rate::Float64 = 1/0.45 # 1/s
     state::Float64 = 0.0
     rotational_diffusivity::Float64 = 0.035 # rad²/s
