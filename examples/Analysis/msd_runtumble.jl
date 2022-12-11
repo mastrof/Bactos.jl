@@ -1,4 +1,5 @@
 using BacteriaBasedModels
+using Distributions
 using Plots
 
 θs = [π/6, π/4, π/3, π/2, π]
@@ -12,7 +13,9 @@ microbes = [
     [
         Microbe{3}(
             id = n, turn_rate = ω,
-            motility = RunTumble(speed=Degenerate(U), yaw=Degenerate(θ))
+            motility = RunTumble(
+                speed=Degenerate(U), polar=[θ,-θ],
+                )
         ) for n in 1:nmicrobes 
     ] for θ in θs
 ]
