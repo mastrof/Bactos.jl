@@ -48,7 +48,7 @@ switch(::BackwardState) = ForwardState()
 switch!(s::TwoStates) = (s.state = switch(s.state))
 
 Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
-    speed = Degenerate(1.0)
+    speed = Degenerate(30.0)
     polar = Uniform(-π, π) # in-plane
     azimuthal = Arccos(-1, 1) # out-of-plane
 end # struct
