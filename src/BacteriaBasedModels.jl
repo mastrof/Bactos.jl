@@ -37,6 +37,7 @@ include("celllistmap.jl")
 include("brown-berg.jl")
 include("brumley.jl")
 include("celani.jl")
+include("xie.jl")
 
 # Measurements
 include("drift.jl")
