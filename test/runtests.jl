@@ -7,4 +7,5 @@ using Test, BacteriaBasedModels, Random
     include("reorientations.jl")
     include("step.jl")
     include("measurements.jl")
+    include("finite_differences.jl")
 end

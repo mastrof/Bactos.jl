@@ -9,9 +9,13 @@ using Test, BacteriaBasedModels, Random
         m = 2
         dx = x.step.hi
         x = range(x[1]-m*dx, x[end]+m*dx; step=dx)
+        # initial function
         y₀ = sin.(x)
+        # analytical first derivative
         y₁ = cos.(x)
+        # analytical second derivative
         y₂ = -sin.(x)
+        # initialize arrays for numerical derivatives
         dy₀ = zero(y₀)
         d²y₀ = zero(y₀)
         ddy₀ = zero(y₀)
@@ -19,13 +23,22 @@ using Test, BacteriaBasedModels, Random
         ∇y₀ = zero(y₀)
         ∇²y₀ = zero(y₀)
         divy₀ = zero(y₀)
+        # evaluate numerical derivatives
+        # first derivative
         finitediff!(dy₀, y₀, 1/dx)
+        # first derivative of analytical first derivative
         finitediff!(dy₁, y₁, 1/dx)
+        # first derivative of numerical first derivative
         finitediff!(ddy₀, dy₀, 1/dx)
+        # second derivative
         finitediff!(d²y₀, y₀, 1/dx^2, CFDM_3_2)
+        # with a 1st order stencil, laplacian equates first derivative
         laplacian!(∇y₀, y₀, 1/dx, CFDM_3_1)
+        # actual laplacian, in 1d corresponds to second derivative
         laplacian!(∇²y₀, y₀, 1/dx^2)
+        # divergence, in 1d corresponds to first derivative
         divergence!(divy₀, y₀, 1/dx)
+        # ghost cells must be excluded from the test
         @test all((dy₀ .≃ y₁)[1+m:end-m])
         @test all((dy₁ .≃ y₂)[1+m:end-m])
         @test all((ddy₀ .≃ y₂)[1+m:end-m])
