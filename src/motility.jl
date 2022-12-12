@@ -1,6 +1,7 @@
 export
     AbstractMotility, AbstractMotilityOneStep, AbstractMotilityTwoStep,
-    AbstractMotileState, ForwardState, BackwardState, TwoStates
+    AbstractMotileState, ForwardState, BackwardState, TwoStates,
+    switch!, motilestate,
     RunTumble, RunReverse, RunReverseFlick
 
 """
@@ -47,6 +48,7 @@ end
 switch(::ForwardState) = BackwardState()
 switch(::BackwardState) = ForwardState()
 switch!(s::TwoStates) = (s.state = switch(s.state))
+motilestate(m::AbstractMotilityTwoStep) = m.motile_state.state
 
 Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
     speed = Degenerate(30.0)
