@@ -42,13 +42,13 @@ function turn!(microbe::AbstractMicrobe, motility::AbstractMotilityTwoStep)
     # store current speed
     U₀ = norm(microbe.vel)
     # perform reorientation depending on current motile state
-    if motility.motile_state == ForwardState
+    if motilestate(motility) == ForwardState()
         # reorient according to forward-state angles
         θ = rand(motility.polar_forward)
         ϕ = rand(motility.azimuthal_forward)
         # extract new speed from backward-state distribution
         U₁ = rand(motility.speed_backward)
-    else
+    elseif motilestate(motility) == BackwardState()
         # reorient according to backward-state angles
         θ = rand(motility.polar_backward)
         ϕ = rand(motility.azimuthal_backward)
