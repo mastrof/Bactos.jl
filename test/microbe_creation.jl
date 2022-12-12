@@ -88,11 +88,11 @@ using LinearAlgebra: norm
 
     @testset "Celani" begin
         # test type hierarchy
-        @test AbstractCelani{D} <: AbstractMicrobe{D} where {D}
-        @test Celani{D} <: AbstractCelani{D} where {D}
-        @test CelaniNoisy{D} <: AbstractCelani{D} where {D}
-        @test !(CelaniNoisy{D} <: Celani{D} where {D})
-        @test !(Celani{D} <: CelaniNoisy{D} where {D})
+        @test AbstractCelani <: AbstractMicrobe
+        @test Celani <: AbstractCelani
+        @test CelaniNoisy <: AbstractCelani
+        @test !(CelaniNoisy <: Celani)
+        @test !(Celani <: CelaniNoisy)
 
         @test setdiff(fieldnames(CelaniNoisy), fieldnames(Celani)) == [:chemotactic_precision]
 
@@ -125,11 +125,11 @@ using LinearAlgebra: norm
 
     @testset "Xie" begin
         # test type hierarchy
-        @test AbstractXie{D} <: AbstractMicrobe{D} where {D}
-        @test Xie{D} <: AbstractXie{D} where {D}
-        @test XieNoisy{D} <: AbstractXie{D} where {D}
-        @test !(XieNoisy{D} <: Xie{D} where {D})
-        @test !(Xie{D} <: XieNoisy{D} where {D})
+        @test AbstractXie <: AbstractMicrobe
+        @test Xie <: AbstractXie
+        @test XieNoisy <: AbstractXie
+        @test !(XieNoisy <: Xie)
+        @test !(Xie <: XieNoisy)
 
         @test setdiff(fieldnames(XieNoisy), fieldnames(Xie)) == [:chemotactic_precision]
 
