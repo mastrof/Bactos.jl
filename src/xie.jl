@@ -87,11 +87,11 @@ end
 
 function xie_turnrate(microbe, model)
     S = microbe.state
-    motile_state = microbe.motility.motile_state
-    if motile_state == ForwardState
+    motile_state = motilestate(microbe.motility)
+    if motile_state == ForwardState()
         ν₀ = microbe.turn_rate_forward
         β = microbe.gain_forward
-    elseif motile_state == BackwardState
+    elseif motile_state == BackwardState()
         ν₀ = microbe.turn_rate_backward
         β = microbe.gain_backward
     end
