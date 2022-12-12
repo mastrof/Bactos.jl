@@ -1,5 +1,6 @@
 export
     AbstractMotility, AbstractMotilityOneStep, AbstractMotilityTwoStep,
+    AbstractMotileState, ForwardState, BackwardState, TwoStates
     RunTumble, RunReverse, RunReverseFlick
 
 """
