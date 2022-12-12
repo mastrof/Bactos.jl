@@ -1,4 +1,6 @@
-export Celani, CelaniNoisy, celani_affect!, celani_turnrate, microbe_step!
+export
+    AbstractCelani, Celani, CelaniNoisy,
+    celani_affect!, celani_turnrate, microbe_step!
 
 abstract type AbstractCelani{D} <: AbstractMicrobe{D} end
 
