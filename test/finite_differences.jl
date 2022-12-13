@@ -1,7 +1,7 @@
 using Test, BacteriaBasedModels, Random
 
 @testset "Finite differences" begin
-    ≃(x,y) = isapprox(x,y;atol=1e-3)
+    ≃(x,y) = isapprox(x,y;atol=1e-3) # \simeq
     @testset "One dimension" begin
         n = 256
         x = range(0, 2π; length=n)
@@ -74,5 +74,44 @@ using Test, BacteriaBasedModels, Random
         @test all((myuy .≃ uy)[1+m:end-m,1+m:end-m])
         @test all((mylapu .≃ lapu)[1+m:end-m,1+m:end-m])
         @test all((mylapu_2 .≃ lapu)[1+m:end-m,1+m:end-m]) # ∇⋅∇ = ∇²
+    end
+
+    @testset "Three dimensions" begin
+        nx = 128
+        ny = 128
+        nz = 64
+        x₁, x₂ = 0.0, 2π
+        y₁, y₂ = 0.0, 2π
+        z₁, z₂ = 0.0, 1.0
+        dx = (x₂-x₁)/(nx-1)
+        dy = (y₂-y₁)/(ny-1)
+        dz = (z₂-z₁)/(nz-1)
+        # domain with ghost cells
+        m = 2
+        x = range(x₁-m*dx, x₂+m*dx; step=dx)
+        y = range(y₁-m*dy, y₂+m*dy; step=dy)
+        z = range(z₁-m*dz, z₂+m*dz; step=dz)
+        u₀ = zeros(nx+2m, ny+2m, nz+2m)
+        ux = zero(u₀)
+        uy = zero(u₀)
+        uz = zero(u₀)
+        ∇²u = zero(u₀)
+        for k in axes(u₀,3), j in axes(u₀,2), i in axes(u₀,1)
+            u₀[i,j,k] = cos(x[i])*sin(y[j])*z[k]
+            ux[i,j,k] = -sin(x[i])*sin(y[j])*z[k]
+            uy[i,j,k] = cos(x[i])*cos(y[j])*z[k]
+            uz[i,j,k] = cos(x[i])*sin(y[j])
+            ∇²u[i,j,k] = -2*u₀[i,j,k]
+        end
+        myux = zero(u₀)
+        myuy = zero(u₀)
+        myuz = zero(u₀)
+        my∇²u = zero(u₀)
+        finitediff!(myux, myuy, myuz, u₀, 1/dx, 1/dy, 1/dz)
+        laplacian!(my∇²u, u₀, 1/dx^2, 1/dy^2, 1/dz^2)
+        @test all((myux .≃ ux)[m+1:end-m,m+1:end-m,m+1:end-m])
+        @test all((myuy .≃ uy)[m+1:end-m,m+1:end-m,m+1:end-m])
+        @test all((myuz .≃ uz)[m+1:end-m,m+1:end-m,m+1:end-m])
+        @test all((my∇²u .≃ ∇²u)[m+1:end-m,m+1:end-m,m+1:end-m])
     end
 end
