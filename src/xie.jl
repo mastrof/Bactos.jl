@@ -6,7 +6,7 @@ Base.@kwdef mutable struct Xie{D} <: AbstractXie{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunReverse(speed_forward = Degenerate(46.5))
-    vel::NTuple{D,Float64} = rand_vel(D) .* randspeed(motility)
+    vel::NTuple{D,Float64} = rand_vel(D, motility)
     turn_rate_forward::Float64 = 2.3 # 1/s
     turn_rate_backward::Float64 = 1.9 # 1/s
     state_m::Float64 = 0.0 # s
@@ -25,7 +25,7 @@ Base.@kwdef mutable struct XieNoisy{D} <: AbstractXie{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunReverse(speed_forward = Degenerate(46.5))
-    vel::NTuple{D,Float64} = rand_vel(D) .* randspeed(motility)
+    vel::NTuple{D,Float64} = rand_vel(D, motility)
     turn_rate_forward::Float64 = 2.3 # 1/s
     turn_rate_backward::Float64 = 1.9 # 1/s
     state_m::Float64 = 0.0 # s
@@ -40,9 +40,6 @@ Base.@kwdef mutable struct XieNoisy{D} <: AbstractXie{D}
     rotational_diffusivity::Float64 = 0.26 # rad²/s
     radius::Float64 = 0.5 # μm
 end
-
-randspeed(m::AbstractMotilityTwoStep) = m.motile_state == ForwardState ? rand(m.speed_forward) : rand(m.speed_backward)
-
 
 function xie_affect!(microbe::Xie, model)
     Δt = model.timestep
