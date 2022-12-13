@@ -70,15 +70,16 @@ AgentBasedModel with 10 agents of type Microbe
 Now we can already generate random walks.
 The setup follows previous sections.
 ```julia
-dt = 0.1
-L = 100.0
+timestep = 0.1
+extent = 1e6 # just a large value to stay away from boundaries
 nmicrobes = 8
+# initialise all microbes at same position
 microbes = [Microbe{1}(id=i, pos=(L/2,)) for i in 1:nmicrobes]
 
 model = initialise_model(;
-    microbes = microbes,
-    timestep = dt,
-    extent = L, periodic = false,
+    microbes,
+    timestep,
+    extent, periodic = false,
     random_positions = false
 )
 ```
@@ -87,16 +88,16 @@ Now we need to define the `adata` variable to choose what observables we want to
 ```julia
 adata = [:pos]
 ```
-Now we can run the simulation; the `microbe_step!` function will take care of the stepping and reorientations:
+Now we can run the simulation; the `microbe_step!` function will take care of the stepping and reorientations according to the properties of each microbe:
 ```julia
 nsteps = 1000
 adf, = run!(model, microbe_step!, nsteps; adata)
 ```
 
 ```julia
-x = vectorize_adf_measurement(adf, :pos) .|> first
+x = first.(vectorize_adf_measurement(adf, :pos))'
 plot(
-    (0:nsteps).*dt, x',
+    (0:nsteps).*dt, x,
     legend = false,
     xlab = "time",
     ylab = "position"
@@ -107,20 +108,20 @@ plot(
 Similarly for a two-dimensional random walk, using run-reverse-flick motility and non-zero rotational diffusion:
 ```julia
 dt = 0.1
-L = 100.0
+L = 1000.0
 nmicrobes = 1
 microbes = [
     Microbe{2}(
         id=i, pos=(L/2,L/2),
         motility=RunReverseFlick(),
-        rotational_diffusivity = 0.02,
+        rotational_diffusivity = 0.2,
         ) for i in 1:nmicrobes
 ]
 
 model = initialise_model(;
-    microbes = microbes,
+    microbes,
     timestep = dt,
-    extent = extent, periodic = false,
+    extent, periodic = false,
     random_positions = false,
 )
 
@@ -129,10 +130,10 @@ adata = [:pos]
 adf, = run!(model, microbe_step!, nsteps; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
-x = first.(traj)
-y = last.(traj)
+x = first.(traj)'
+y = last.(traj)'
 plot(
-    x', y', line_z = (0:nsteps).*dt,
+    x, y, line_z = (0:nsteps).*dt,
     legend=false,
     xlab = "x", ylab = "y",
     colorbar = true, colorbar_title = "time"
