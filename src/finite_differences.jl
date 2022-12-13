@@ -103,7 +103,7 @@ finitediff!(ux::A, uy::A, u::A, a::Real, FDM=CFDM_3_1) where
 
 @views function finitediff!(ux::A, uy::A, uz::A, u::A,
                             ax::B, ay::B, az::B, FDM=CFDM_3_1) where
-    {A<:AbstractMatrix{Float64}, B<:Real}
+    {A<:AbstractArray{Float64,3}, B<:Real}
     nx, ny, nz = size(u)
     i_start = j_start = k_start = 1 + abs(FDM.grid[1])
     i_end = nx - FDM.grid[end]
@@ -117,7 +117,7 @@ finitediff!(ux::A, uy::A, u::A, a::Real, FDM=CFDM_3_1) where
 end # function
 
 finitediff!(ux::A, uy::A, uz::A, u::A, a::Real, FDM=CFDM_3_1) where
-    {A<:AbstractMatrix{Float64}} = finitediff!(ux, uy, uz, u, a, a, a, FDM)
+    {A<:AbstractArray{Float64,3}} = finitediff!(ux, uy, uz, u, a, a, a, FDM)
 
 
 """
@@ -152,7 +152,7 @@ end # function
     j_end = ny - FDM.grid[end]
     k_end = nz - FDM.grid[end]
     for k in k_start:k_end, j in j_start:j_end, i in i_start:i_end
-        du[i,j,k] = ax*∂x(u,i,j,FDM) + ay*∂y(u,i,j,FDM) + az*∂z(u,i,j,k,FDM)
+        du[i,j,k] = ax*∂x(u,i,j,k,FDM) + ay*∂y(u,i,j,k,FDM) + az*∂z(u,i,j,k,FDM)
     end # for
 end
 
@@ -191,6 +191,6 @@ end # function
     j_end = ny - FDM.grid[end]
     k_end = nz - FDM.grid[end]
     for k in k_start:k_end, j in j_start:j_end, i in i_start:i_end
-        du[i,j,k] = ax*∂x(ux,i,j,FDM) + ay*∂y(uy,i,j,FDM) + az*∂z(uz,i,j,k,FDM)
+        du[i,j,k] = ax*∂x(ux,i,j,k,FDM) + ay*∂y(uy,i,j,k,FDM) + az*∂z(uz,i,j,k,FDM)
     end # for
 end
