@@ -11,9 +11,9 @@ rotate(w::SVector{2}, θ, ϕ) = rotate(w, θ)
 function rotate(w::SVector{3}, θ, ϕ)
     m = findfirst(w .≠ 0)
     n = m%3 + 1
-    u = zeros(3)
-    u[n] = w[m]
-    u[m] = -w[n]
+    u = SVector(0., 0., 0.)
+    u = setindex(u, w[m], n)
+    u = setindex(u, -w[n], m)
     # rotate w around its normal u 
     a = AngleAxis(θ, u...) * w
     # rotate a around the original w direction
