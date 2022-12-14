@@ -11,13 +11,13 @@ using Rotations
 using OrdinaryDiffEq: ODEProblem, DEIntegrator, init, Tsit5, step!
 using FiniteDifferences: central_fdm
 
-# Utility routines
-include("utils.jl")
-
 # Core structures
 include("distributions.jl")
 include("motility.jl")
 include("microbes.jl")
+
+# Utility routines
+include("utils.jl")
 
 # ABM setup
 include("model.jl")

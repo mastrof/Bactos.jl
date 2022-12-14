@@ -37,7 +37,7 @@ Base.@kwdef mutable struct Microbe{D} <: AbstractMicrobe{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunTumble()
-    vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed)
+    vel::NTuple{D,Float64} = rand_vel(D, motility)
     turn_rate::Float64 = 1.0
     state::Float64 = 0.0
     rotational_diffusivity::Float64 = 0.0

@@ -26,6 +26,11 @@ using LinearAlgebra: norm
         @test m.rotational_diffusivity == 0.0
         @test m.radius == 0.0
 
+        # test constructor works for all types of motility
+        @test_nowarn Microbe{2}(id=0, motility=RunTumble())
+        @test_nowarn Microbe{2}(id=0, motility=RunReverse())
+        @test_nowarn Microbe{2}(id=0, motility=RunReverseFlick())
+
         # test some arguments again for 3D
         id = rand(Int)
         D = 3
