@@ -69,6 +69,16 @@ using Test, BacteriaBasedModels, Random
     @test model1.space.extent == (1.0, 1.0, 1.0)
     @test model2.space.extent == (1.0, 2.0, 3.0)
 
+    # test mixed species models
+    timestep = 1.0
+    extent = 1.0
+    microbes = [MicrobeBrumley{1}(id=1), MicrobeBrumley{1}(id=2)]
+    model = initialise_model(; microbes, timestep, extent)
+    @test model.agents isa Dict{Int, MicrobeBrumley{1}}
+    microbes = [Microbe{1}(id=1), MicrobeBrumley{1}(id=2), Xie{1}(id=3)]
+    model = initialise_model(; microbes, timestep, extent)
+    @test model.agents isa Dict{Int, Union{Microbe{1}, MicrobeBrumley{1}, Xie{1}}}
+
     @testset "DiffEq Integrator" begin
         microbes = [Microbe{1}(id=0)]
         timestep = 0.1
