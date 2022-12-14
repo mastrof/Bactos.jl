@@ -67,7 +67,9 @@ function initialise_model(;
         periodic = periodic
     )
 
-    MicrobeType = eltype(microbes)
+    # falls back to eltype(microbes) if there is a single microbe type,
+    # builds a Union type if eltype(microbes) is abstract
+    MicrobeType = Union{typeof.(microbes)...}
 
     model = ABM(
         MicrobeType, space;

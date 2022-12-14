@@ -11,9 +11,9 @@ rotate(w::SVector{2}, θ, ϕ) = rotate(w, θ)
 function rotate(w::SVector{3}, θ, ϕ)
     m = findfirst(w .≠ 0)
     n = m%3 + 1
-    u = zeros(3)
-    u[n] = w[m]
-    u[m] = -w[n]
+    u = SVector(0., 0., 0.)
+    u = setindex(u, w[m], n)
+    u = setindex(u, -w[n], m)
     # rotate w around its normal u 
     a = AngleAxis(θ, u...) * w
     # rotate a around the original w direction
@@ -69,10 +69,8 @@ rotational_diffusion!(microbe::AbstractMicrobe{1}, dt) = nothing
 function rotational_diffusion!(microbe::AbstractMicrobe, dt)
     D_rot = microbe.rotational_diffusivity
     σ = sqrt(2*D_rot*dt)
-    #== this might be wrong ==#
     polar = rand(Normal(0, σ))
-    azimuthal = rand(Uniform(0, 2π))
-    #==#
+    azimuthal = rand(Arccos())
     microbe.vel = Tuple(rotate(microbe.vel, polar, azimuthal))
     return nothing
 end # function 

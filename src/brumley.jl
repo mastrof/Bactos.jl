@@ -21,7 +21,7 @@ Base.@kwdef mutable struct MicrobeBrumley{D} <: AbstractMicrobe{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunReverseFlick(speed_forward = Degenerate(46.5))
-    vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed_forward)
+    vel::NTuple{D,Float64} = rand_vel(D, motility) # μm/s
     turn_rate::Float64 = 1/0.45 # 1/s
     state::Float64 = 0.0
     rotational_diffusivity::Float64 = 0.035 # rad²/s

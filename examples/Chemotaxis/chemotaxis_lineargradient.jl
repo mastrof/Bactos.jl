@@ -22,8 +22,8 @@ microbes_brown = [
     MicrobeBrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
     for i in 1:n
 ]
-MicrobeType = Union{MicrobeBrumley{2}, MicrobeBrownBerg{2}}
-microbes = MicrobeType[microbes_brumley; microbes_brown]
+
+microbes = [microbes_brumley; microbes_brown]
 
 #== FIELD PARAMETERS ==#
 C₀ = 0.0 # μM 
