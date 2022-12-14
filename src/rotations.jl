@@ -69,10 +69,8 @@ rotational_diffusion!(microbe::AbstractMicrobe{1}, dt) = nothing
 function rotational_diffusion!(microbe::AbstractMicrobe, dt)
     D_rot = microbe.rotational_diffusivity
     σ = sqrt(2*D_rot*dt)
-    #== this might be wrong ==#
     polar = rand(Normal(0, σ))
-    azimuthal = rand(Uniform(0, 2π))
-    #==#
+    azimuthal = rand(Arccos())
     microbe.vel = Tuple(rotate(microbe.vel, polar, azimuthal))
     return nothing
 end # function 

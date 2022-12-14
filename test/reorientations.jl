@@ -1,7 +1,7 @@
 using Test, BacteriaBasedModels, Random
 using LinearAlgebra: norm, dot
 using StaticArrays
-using Distributions: Uniform
+using Distributions: Uniform, Normal
 
 @testset "Microbe reorientations" begin
     ≊(x,y) = isapprox(x, y, atol=1e-12) # \approxeq
@@ -101,6 +101,65 @@ using Distributions: Uniform
         m = Microbe{3}(id=1; vel, motility)
         turn!(m, m.motility)
         @test SVector(m.vel) ≊ SVector(U*cos(θ), U*sin(θ)*sin(φ), -U*sin(θ)*cos(φ))
+        @test dot(m.vel, vel)/U^2 ≊ cos(θ)
+    end
+
+    @testset "Rotational diffusion" begin
+        dt = 1.0
+        vel = (1.0,)
+        rotational_diffusivity = 0.3
+        m = Microbe{1}(id=1; vel, rotational_diffusivity)
+        # in 1D rotational diffusion is deactivated, nothing should happen
+        rotational_diffusion!(m, dt)
+        @test m.vel == vel
+
+        dt = 1.0
+        rotational_diffusivity = 0.0
+        m = Microbe{2}(id=1; rotational_diffusivity)
+        vel = m.vel
+        rotational_diffusion!(m, dt)
+        # if rotational_diffusivity = 0 vel should be unchanged
+        @test m.vel == vel
+
+        dt = 1.0
+        rotational_diffusivity = 0.3
+        σ = sqrt(2*rotational_diffusivity*dt)
+        m = Microbe{2}(id=1; rotational_diffusivity)
+        vel = m.vel
+        U = norm(vel)
+        # fix rng state
+        N = 7
+        Random.seed!(N)
+        θ = rand(Normal(0,σ))
+        # reset rng
+        Random.seed!(N)
+        rotational_diffusion!(m, dt)
+        # reorientation should be of an angle θ and norm should be conserved
+        @test dot(m.vel, vel)/U^2 ≊ cos(θ)
+
+        # same tests for 3d
+        dt = 1.0
+        rotational_diffusivity = 0.0
+        m = Microbe{3}(id=1; rotational_diffusivity)
+        vel = m.vel
+        rotational_diffusion!(m, dt)
+        # if rotational_diffusivity = 0 vel should be (approx.) unchanged
+        @test all(m.vel .≊ vel)
+
+        dt = 1.0
+        rotational_diffusivity = 0.3
+        σ = sqrt(2*rotational_diffusivity*dt)
+        m = Microbe{3}(id=1; rotational_diffusivity)
+        vel = m.vel
+        U = norm(vel)
+        # fix rng state
+        N = 7
+        Random.seed!(N)
+        θ, φ = rand(Normal(0,σ)), rand(Arccos())
+        # reset rng
+        Random.seed!(N)
+        rotational_diffusion!(m, dt)
+        # reorientation should be of an angle θ and norm should be conserved
         @test dot(m.vel, vel)/U^2 ≊ cos(θ)
     end
 end
