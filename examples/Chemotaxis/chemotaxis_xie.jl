@@ -15,8 +15,8 @@ concentration_field(t,C₀,C₁,t₁,t₂) = C₀+C₁*θ(t,t₁)*(1-θ(t,t₂))
 concentration_gradient(pos, model) = zero.(pos) # not used by Xie
 concentration_time_derivative(pos, model) = 0.0 # not used by Xie
 
-motility_fw = RunReverse(motile_state = TwoStates(ForwardState()))
-motility_bw = RunReverse(motile_state = TwoStates(BackwardState()))
+motility_fw = RunReverseFlick(motile_state = TwoStates(ForwardState()))
+motility_bw = RunReverseFlick(motile_state = TwoStates(BackwardState()))
 microbes = [
     XieNoisy{3}(id=1, turn_rate_forward=0, motility=motility_fw),
     XieNoisy{3}(id=2, turn_rate_backward=0, motility=motility_bw)
