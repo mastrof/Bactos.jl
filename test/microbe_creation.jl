@@ -154,7 +154,7 @@ using LinearAlgebra: norm
         @test m1.adaptation_time_z == 0.28
         @test m1.binding_affinity == 0.39
         @test m1.radius == 0.5
-        @test m1.motility isa RunReverse
+        @test m1.motility isa RunReverseFlick
         @test m1.motility.speed_forward == m1.motility.speed_backward
 
         m2 = XieNoisy{3}(id=0)
@@ -173,7 +173,7 @@ using LinearAlgebra: norm
         @test m2.binding_affinity == 0.39
         @test m2.radius == 0.5
         @test m2.chemotactic_precision == 6.0
-        @test m2.motility isa RunReverse
+        @test m2.motility isa RunReverseFlick
         @test m2.motility.speed_forward == m2.motility.speed_backward
     end
 end
