@@ -1,6 +1,7 @@
 using Test, BacteriaBasedModels, Random
 
 @testset "Measurements" begin
+    ≃(x,y) = isapprox(x,y,atol=1e-8) # \simeq
     @testset "Chemotactic drift velocity" begin
         # with turn_rate=0 motility is ignored and vel never changes
         m1 = Microbe{1}(id=1, pos=(4.0,), vel=(1.0,), turn_rate=0)
@@ -62,11 +63,11 @@ using Test, BacteriaBasedModels, Random
         adf, = run!(model, microbe_step!, nsteps; adata)
         # total displacement obeys ballistic motion
         Δx = adf[end,:pos][1] .- adf[1,:pos][1]
-        @test Δx ≈ U*nsteps*timestep
+        @test Δx ≃ U*nsteps*timestep
         MSD = msd(adf) |> vec
         # for ballistic motion MSD(t) = U²t²
         for n in 1:nsteps
-            @test MSD[n] ≈ (U*n*timestep)^2
+            @test MSD[n] ≃ (U*n*timestep)^2
         end # for
 
         # same ballistic test over longer times
@@ -74,7 +75,7 @@ using Test, BacteriaBasedModels, Random
         nsteps = 500
         adf, = run!(model, microbe_step!, nsteps; adata)
         MSD = msd(adf; L=extent) |> vec
-        @test MSD[nsteps] ≈ (U*nsteps*timestep)^2
+        @test MSD[nsteps] ≃ (U*nsteps*timestep)^2
 
         
         U = 3.0
@@ -88,11 +89,11 @@ using Test, BacteriaBasedModels, Random
         adf, = run!(model, microbe_step!, nsteps; adata)
         MSD = msd(adf; L=extent) |> vec
         # first step is ballistic forward
-        @test MSD[1] ≈ (U*timestep)^2
+        @test MSD[1] ≃ (U*timestep)^2
         # second step goes back to initial position
-        @test MSD[2] ≈ 0.0
+        @test MSD[2] ≃ 0.0
         # same pattern for following timesteps
-        @test MSD[3] ≈ MSD[1]
-        @test MSD[4] ≈ MSD[2]
+        @test MSD[3] ≃ MSD[1]
+        @test MSD[4] ≃ MSD[2]
     end
 end
