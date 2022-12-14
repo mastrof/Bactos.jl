@@ -9,6 +9,7 @@ makedocs(
     pages = [
         "Home" => "index.md",
         "Tutorial" => "tutorial.md"
+        "Validation" => "checks.md"
     ]
 )
 
