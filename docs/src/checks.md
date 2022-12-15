@@ -126,7 +126,7 @@ microbes = [
     [
         Microbe{3}(
             id = n, turn_rate = ω,
-            motility = RunTumble(speed=[U], polar=[θ], azimuthal=Uniform(0,2π))
+            motility = RunTumble(speed=[U], polar=[θ,-θ])
         ) for n in 1:nmicrobes 
     ] for θ in θs
 ]
