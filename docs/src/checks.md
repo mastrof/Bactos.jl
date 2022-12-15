@@ -96,22 +96,37 @@ hline!([0.0], lw=0.8, ls=:dash, lc=:black, lab=false)
 
 ## Mean-squared displacement
 It's also easy to evaluate the mean-squared displacement (MSD) of our microbes during a simulation.
-We will now run simulations of run-tumble bacteria using different reorientation distributions (parameterized by the average reorientation angle θ), and compare the MSD as a function of θ to theoretical expectations using the well-known diffusivity formula by Berg, D = U²τ/3α, where the persistence factor α=1-cosθ.
+We will now run simulations of run-tumble bacteria using different reorientation distributions (parameterized by the average inclination angle θ), and compare the MSD as a function of θ to theoretical expectations using the well-known diffusivity formula by Lovely and Dahlquist (1975)<sup>2</sup>
+$$
+D = \dfrac{v^2\tau}{3(1-\alpha)}
+$$
+where $\alpha = \left< \cos\theta \right>$ represents the directional persistence of the trajectory.
+
+Since $D$ only depends on $\left< \cos\theta \right>$ and not on the full $P(\theta)$ distribution, we will simply use degenerate distributions $P_i(\theta) = \delta(\theta-\bar\theta)$ for different values $\bar\theta$ and compare the MSD estimated from our simulations to the theoretical expectation.
+Taktikos et al. (2013)<sup>1</sup> provide the analytical expression for the MSD which interpolates between the short-term ballistic regime and the long-term diffusive regime:
+$$
+{\rm MSD}(t) = 6D\dfrac{\tau}{1-\alpha}
+\left[
+    \dfrac{(1-\alpha)t}{\tau}-1+
+    {\rm exp}\left( -\dfrac{(1-\alpha)t}{\tau} \right)
+\right]
+$$
 
 We will setup our systems as usual and then run each simulation independently
 ```julia
+using Distributions: Uniform
 θs = [π/6, π/4, π/3, π/2, π]
 
-U = 30.0 # μm/s 
-τ_run = 1.0 # s 
-ω = 1 / τ_run
+U = 30.0 # swimming speed in μm/s 
+τ = 1.0 # average run time in s 
+ω = 1 / τ # average turn rate in 1/s
 
-nmicrobes = 100
+nmicrobes = 200
 microbes = [
     [
         Microbe{3}(
             id = n, turn_rate = ω,
-            motility = RunTumble(speed=Degenerate(U), yaw=Degenerate(θ))
+            motility = RunTumble(speed=[U], polar=[θ], azimuthal=Uniform(0,2π))
         ) for n in 1:nmicrobes 
     ] for θ in θs
 ]
@@ -125,7 +140,7 @@ models = [
     ) for i in eachindex(microbes)
 ]
 
-nsteps = round(Int, 100τ_run / dt)
+nsteps = round(Int, 100τ / dt)
 adata = [:pos]
 adfs = [run!(model, microbe_step!, nsteps; adata)[1] for model in models]
 ```
@@ -136,25 +151,24 @@ MSD = msd.(adfs; L=L)
 ```
 We can now slice our experimental data and plot the results.
 ```julia
-ts = (1:nsteps).*dt
-
-logslice = [1,2,5,10,25,50,100,250,500,1000]
+t = (1:nsteps).*dt
+logslice = round.(Int, exp10.(range(0,3,length=10)))
 plot(
-    xlab = "Δt (s)",
-    ylab = "MSD (μm²/s)",
-    legend = :bottomright, legendtitle = "1-cosθ",
+    xlab = "Δt / τ",
+    ylab = "MSD / (Uτ)²",
+    legend = :bottomright, legendtitle = "1-α",
     scale = :log10
 )
-scatter!(ts[logslice], hcat(MSD...)[logslice,:],
+scatter!(t[logslice]./τ, hcat(MSD...)[logslice,:]./(U*τ)^2,
     m=:x, ms=6, msw=2, lab=false)
 for i in eachindex(θs)
-    α = 1 - cos(θs[i])
-    τ = τ_run / α
-    D = U^2*τ / 3
-    dr² = @. 2*U^2*τ^2 * (ts/τ - 1 + exp(-ts/τ))
-    plot!(ts, dr², lab=round(α,digits=2), lc=i, lw=2)
+    α = cos(θs[i])
+    T = τ / (1-α)
+    D = U^2*T / 3
+    dr² = @. 6*D*T * (t/T - 1 + exp(-t/T))
+    plot!(t./τ, dr²./(U*τ)^2, lab=round(1-α,digits=2), lc=i, lw=2)
 end # for
-plot!()
+plot!(xticks=exp10.(-1:2), yticks=exp10.(-2:2:2))
 ```
 
 ![Mean-squared displacement of run-tumble bacteria with different reorientation distributions](msd_runtumble.png)
@@ -162,3 +176,4 @@ plot!()
 
 ## References
 1. Taktikos, J.; Stark, H.; Zaburdaev, V. How the Motility Pattern of Bacteria Affects Their Dispersal and Chemotaxis. PLoS ONE 2013, 8 (12), e81936. https://doi.org/10.1371/journal.pone.0081936.
+2. Lovely, P.S.; Dahlquist, F.W. Statistical measures of bacterial motility and chemotaxis. Journal of Theoretical Biology 1975, 50 (2), 477-496. https://doi.org/10.1016/0022-5193(75)90094-6
