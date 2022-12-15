@@ -152,3 +152,83 @@ microbes = vcat(
     microbes_runtumble, microbes_runrev, microbes_runrevflick
 )
 ```
+
+
+## Chemotaxis in a linear gradient
+We will now reproduce a classical chemotaxis assay: bacteria in a rectangular channel with a linear attractant gradient.
+
+`BacteriaBasedModels.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(model, pos)`.
+First we need to define our concentration field and its gradient (we don't define its time derivative since it will be held constant). We will use a linear gradient in the `x` direction.
+Here we can define also the gradient analytically, in more complex cases it can be evaluated numerically through the finite difference interface.
+```julia
+concentration_field(x,y,C₀,∇C) = C₀ + ∇C*x
+function concentration_field(model, pos)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_field(x, y, C₀, ∇C)
+end
+concentration_gradient(x,y,C₀,∇C) = [∇C, 0.0]
+function concentration_gradient(model, pos)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_field(x, y, C₀, ∇C)
+end
+```
+
+We setup our population using two distinct chemotaxers
+```julia
+n = 50
+microbes_brumley = [
+    MicrobeBrumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
+    for i in 1:n
+]
+microbes_brown = [
+    MicrobeBrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
+    for i in 1:n
+]
+microbes = [microbes_brumley; microbes_brown]
+```
+
+We choose the parameters and initialise the model providing the functions for our concentration field to the `model_properties` dictionary.
+```julia
+timestep = 0.1 # s
+Lx, Ly = 1000.0, 500.0 # μm
+extent = (Lx, Ly) # μm
+periodic = false
+C₀ = 0.0 # μM
+∇C = 0.01 # μM/μm
+model_properties = Dict(
+    :concentration_field => concentration_field,
+    :concentration_gradient => concentration_gradient,
+    :concentration_time_derivative => (_,_) -> 0.0,
+    
+    :compound_diffusivity => 500.0, # μm²/s
+    :C₀ => C₀,
+    :∇C => ∇C,
+)
+
+model = initialise_model(;
+    microbes,
+    timestep,
+    extent, periodic,
+    model_properties,
+    random_positions = false
+)
+```
+Notice that we also defined an extra property `compound_diffusivity`. This quantity is *required* by the models of chemotaxis that use sensing noise (such as `Brumley`, `XieNoisy`, `CelaniNoisy`). `500 μm²/s` is a typical value for small molecules.
+
+We can run the simulation as usual and extract the trajectories.
+```julia
+adata = [:pos]
+nsteps = 1000 # corresponds to 100s
+adf, = run!(model, microbe_step!, nsteps; adata)
+
+traj = vectorize_adf_measurement(adf, :pos)
+x = first.(traj)'
+y = last.(traj)'
+```
+Comparing the trajectories for the two bacterial species we witness a chemotactic race (`Brumley` in blue, `BrownBerg` in orange).
+
+![Chemotactic race in a linear gradient](lineargradient.gif)
