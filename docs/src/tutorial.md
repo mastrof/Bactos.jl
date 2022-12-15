@@ -70,15 +70,16 @@ AgentBasedModel with 10 agents of type Microbe
 Now we can already generate random walks.
 The setup follows previous sections.
 ```julia
-dt = 0.1
-L = 100.0
+timestep = 0.1
+extent = 1e6 # just a large value to stay away from boundaries
 nmicrobes = 8
+# initialise all microbes at same position
 microbes = [Microbe{1}(id=i, pos=(L/2,)) for i in 1:nmicrobes]
 
 model = initialise_model(;
-    microbes = microbes,
-    timestep = dt,
-    extent = L, periodic = false,
+    microbes,
+    timestep,
+    extent, periodic = false,
     random_positions = false
 )
 ```
@@ -87,16 +88,16 @@ Now we need to define the `adata` variable to choose what observables we want to
 ```julia
 adata = [:pos]
 ```
-Now we can run the simulation; the `microbe_step!` function will take care of the stepping and reorientations:
+Now we can run the simulation; the `microbe_step!` function will take care of the stepping and reorientations according to the properties of each microbe:
 ```julia
 nsteps = 1000
 adf, = run!(model, microbe_step!, nsteps; adata)
 ```
 
 ```julia
-x = vectorize_adf_measurement(adf, :pos) .|> first
+x = first.(vectorize_adf_measurement(adf, :pos))'
 plot(
-    (0:nsteps).*dt, x',
+    (0:nsteps).*dt, x,
     legend = false,
     xlab = "time",
     ylab = "position"
@@ -107,20 +108,20 @@ plot(
 Similarly for a two-dimensional random walk, using run-reverse-flick motility and non-zero rotational diffusion:
 ```julia
 dt = 0.1
-L = 100.0
+L = 1000.0
 nmicrobes = 1
 microbes = [
     Microbe{2}(
         id=i, pos=(L/2,L/2),
         motility=RunReverseFlick(),
-        rotational_diffusivity = 0.02,
+        rotational_diffusivity = 0.2,
         ) for i in 1:nmicrobes
 ]
 
 model = initialise_model(;
-    microbes = microbes,
+    microbes,
     timestep = dt,
-    extent = extent, periodic = false,
+    extent, periodic = false,
     random_positions = false,
 )
 
@@ -129,10 +130,10 @@ adata = [:pos]
 adf, = run!(model, microbe_step!, nsteps; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
-x = first.(traj)
-y = last.(traj)
+x = first.(traj)'
+y = last.(traj)'
 plot(
-    x', y', line_z = (0:nsteps).*dt,
+    x, y, line_z = (0:nsteps).*dt,
     legend=false,
     xlab = "x", ylab = "y",
     colorbar = true, colorbar_title = "time"
@@ -152,158 +153,81 @@ microbes = vcat(
 )
 ```
 
-## Velocity autocorrelation functions
-It's important to check that our microbes are behaving as expected.
-A way to do so is running a simulation with different motile patterns, and compare their velocity autocorrelation functions to theoretical expectations (*Taktikos et al. 2013 PLoS ONE*).
 
-First, let's set our parameters
+## Chemotaxis in a linear gradient
+We will now reproduce a classical chemotaxis assay: bacteria in a rectangular channel with a linear attractant gradient.
+
+`BacteriaBasedModels.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(pos, model)`.
+First we need to define our concentration field and its gradient (we don't define its time derivative since it will be held constant). We will use a linear gradient in the `x` direction.
+Here we can define also the gradient analytically, in more complex cases it can be evaluated numerically through the finite difference interface.
 ```julia
-U = 30.0 # μm/s
-τ_run = 1.0 # s
-ω = 1 / τ_run # 1/s
-Δt = 0.01 # s
-L = 1e4 # μm
+concentration_field(x,y,C₀,∇C) = C₀ + ∇C*x
+function concentration_field(pos, model)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_field(x, y, C₀, ∇C)
+end
+concentration_gradient(x,y,C₀,∇C) = [∇C, 0.0]
+function concentration_gradient(pos, model)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_gradient(x, y, C₀, ∇C)
+end
 ```
-then we can generate three distinct microbe populations, differing only in their motility, merge them all into a single population and initialise our model
-```julia
-n = 200
-microbes_runtumble = [
-    Microbe{3}(id=i,
-        turn_rate=ω, vel=rand_vel(3).*U,
-        motility=RunTumble(speed=Degenerate(U))
-    )
-    for i in 1:n
-]
-microbes_runrev = [
-    Microbe{3}(id=n+i,
-        turn_rate=ω, vel=rand_vel(3).*U,
-        motility=RunReverse(speed=Degenerate(U))
-    )
-    for i in 1:n
-]
-microbes_runrevflick = [
-    Microbe{3}(id=2n+i,
-        turn_rate=ω, vel=rand_vel(3).*U,
-        motility=RunReverseFlick(speed=Degenerate(U))
-    )
-    for i in 1:n
-]
 
-microbes = vcat(
-    microbes_runtumble, microbes_runrev, microbes_runrevflick
+
+We choose the parameters, initialise the population (with two distinct chemotaxers) with all bacteria to the left of the channel, and setup the model providing the functions for our concentration field to the `model_properties` dictionary.
+```julia
+timestep = 0.1 # s
+Lx, Ly = 1000.0, 500.0 # μm
+extent = (Lx, Ly) # μm
+periodic = false
+
+n = 50
+microbes_brumley = [
+    MicrobeBrumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
+    for i in 1:n
+]
+microbes_brown = [
+    MicrobeBrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
+    for i in 1:n
+]
+microbes = [microbes_brumley; microbes_brown]
+
+C₀ = 0.0 # μM
+∇C = 0.01 # μM/μm
+model_properties = Dict(
+    :concentration_field => concentration_field,
+    :concentration_gradient => concentration_gradient,
+    :concentration_time_derivative => (_,_) -> 0.0,
+    
+    :compound_diffusivity => 500.0, # μm²/s
+    :C₀ => C₀,
+    :∇C => ∇C,
 )
 
 model = initialise_model(;
-    microbes = microbes,
-    timestep = Δt,
-    extent = L, periodic = true
+    microbes,
+    timestep,
+    extent, periodic,
+    model_properties,
+    random_positions = false
 )
 ```
+Notice that we also defined an extra property `compound_diffusivity`. This quantity is *required* by the models of chemotaxis that use sensing noise (such as `Brumley`, `XieNoisy`, `CelaniNoisy`). `500 μm²/s` is a typical value for small molecules.
 
-To evaluate the velocity autocorrelation functions, we only need to store the `:vel` field of the microbes during the simulation.
-To get a good statistics we need simulation times that are sufficiently longer than the average run length `τ_run`.
+We can run the simulation as usual and extract the trajectories.
 ```julia
-nsteps = round(Int, 100τ_run / Δt)
-adata = [:pos, :vel]
-adf, = run!(model, microbe_step!, nsteps; adata)
-```
-
-We can now separate the three subpopulations by their indices (more generally we could also directly filter by the motility type) and evaluate their velocity autocorrelation functions using the built-in `autocorrelation` function
-```julia
-adf_runtumble = filter(:id => id -> 1≤id≤n, adf; view=true)
-adf_runrev = filter(:id => id -> n+1≤id≤2n, adf; view=true)
-adf_runrevflick = filter(:id => id -> 2n+1≤id≤3n, adf; view=true)
-adfs = [adf_runtumble, adf_runrev, adf_runrevflick]
-
-Φ = hcat([autocorrelation(a,:vel) for a in adfs]...)
-```
-
-The theoretical values are given by *Taktikos et al. 2013 PLoS ONE*
-```julia
-t = range(0, (nsteps-1)*Δt; step=Δt)
-ϕ = hcat([
-    exp.(-t ./ τ_run),
-    exp.(-t ./ (τ_run / 2)),
-    (1 .- t ./ (2τ_run)) .* exp.(-t ./ τ_run),
-]...)
-```
-
-A comparison shows a great agreement between simulation and theory.
-```julia
-plot(
-    xlims=(0,6τ_run), ylims=(-0.1, 1.05),
-    xlab="Δt / τ",
-    ylab="velocity autocorrelation",
-)
-plot!(t, ϕ, lw=2, lc=[1 2 3],
-    label=["Run-Tumble" "Run-Reverse" "Run-Reverse-Flick"])
-scatter!(t[1:10:end], Φ[1:10:end,:] ./ U^2, m=:x, mc=[1 2 3],
-    label=false)
-```
-![Comparison between numerical and theoretical velocity autocorrelation functions for bacteria with different motile patterns](velocity_autocorrelations.png)
-
-
-## Mean-squared displacement
-It's also easy to evaluate the mean-squared displacement (MSD) of our microbes during a simulation.
-We will now run simulations of run-tumble bacteria using different reorientation distributions (parameterized by the average reorientation angle θ), and compare the MSD as a function of θ to theoretical expectations using the well-known diffusivity formula by Berg, D = U²τ/3α, where the persistence factor α=1-cosθ.
-
-We will setup our systems as usual and then run each simulation independently
-```julia
-θs = [π/6, π/4, π/3, π/2, π]
-
-U = 30.0 # μm/s 
-τ_run = 1.0 # s 
-ω = 1 / τ_run
-
-nmicrobes = 100
-microbes = [
-    [
-        Microbe{3}(
-            id = n, turn_rate = ω,
-            motility = RunTumble(speed=Degenerate(U), yaw=Degenerate(θ))
-        ) for n in 1:nmicrobes 
-    ] for θ in θs
-]
-
-dt = 0.05 # s 
-L = 500.0 # μm
-models = [
-    initialise_model(;
-        microbes = microbes[i],
-        timestep = dt, extent = L
-    ) for i in eachindex(microbes)
-]
-
-nsteps = round(Int, 100τ_run / dt)
 adata = [:pos]
-adfs = [run!(model, microbe_step!, nsteps; adata)[1] for model in models]
-```
+nsteps = 1000 # corresponds to 100s
+adf, = run!(model, microbe_step!, nsteps; adata)
 
-We can now evaluate the MSD for each population using the `msd` function; since the simulations were performed in a periodic domain, we will need to specify the size of the domain as a keyword argument
-```julia
-MSD = msd.(adfs; L=L)
+traj = vectorize_adf_measurement(adf, :pos)
+x = first.(traj)'
+y = last.(traj)'
 ```
-We can now slice our experimental data and plot the results.
-```julia
-ts = (1:nsteps).*dt
+Comparing the trajectories for the two bacterial species we witness a chemotactic race (`Brumley` in blue, `BrownBerg` in orange).
 
-logslice = [1,2,5,10,25,50,100,250,500,1000]
-plot(
-    xlab = "Δt (s)",
-    ylab = "MSD (μm²/s)",
-    legend = :bottomright, legendtitle = "1-cosθ",
-    scale = :log10
-)
-scatter!(ts[logslice], hcat(MSD...)[logslice,:],
-    m=:x, ms=6, msw=2, lab=false)
-for i in eachindex(θs)
-    α = 1 - cos(θs[i])
-    τ = τ_run / α
-    D = U^2*τ / 3
-    dr² = @. 2*U^2*τ^2 * (ts/τ - 1 + exp(-ts/τ))
-    plot!(ts, dr², lab=round(α,digits=2), lc=i, lw=2)
-end # for
-plot!()
-```
-
-![Mean-squared displacement of run-tumble bacteria with different reorientation distributions](msd_runtumble.png)
+![Chemotactic race in a linear gradient](lineargradient.gif)
