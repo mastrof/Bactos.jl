@@ -8,7 +8,7 @@ makedocs(
     modules = [BacteriaBasedModels],
     pages = [
         "Home" => "index.md",
-        "Tutorial" => "tutorial.md"
+        "Tutorial" => "tutorial.md",
         "Validation" => "checks.md"
     ]
 )
