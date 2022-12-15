@@ -157,28 +157,34 @@ microbes = vcat(
 ## Chemotaxis in a linear gradient
 We will now reproduce a classical chemotaxis assay: bacteria in a rectangular channel with a linear attractant gradient.
 
-`BacteriaBasedModels.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(model, pos)`.
+`BacteriaBasedModels.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(pos, model)`.
 First we need to define our concentration field and its gradient (we don't define its time derivative since it will be held constant). We will use a linear gradient in the `x` direction.
 Here we can define also the gradient analytically, in more complex cases it can be evaluated numerically through the finite difference interface.
 ```julia
 concentration_field(x,y,C₀,∇C) = C₀ + ∇C*x
-function concentration_field(model, pos)
+function concentration_field(pos, model)
     x, y = pos
     C₀ = model.C₀
     ∇C = model.∇C
     concentration_field(x, y, C₀, ∇C)
 end
 concentration_gradient(x,y,C₀,∇C) = [∇C, 0.0]
-function concentration_gradient(model, pos)
+function concentration_gradient(pos, model)
     x, y = pos
     C₀ = model.C₀
     ∇C = model.∇C
-    concentration_field(x, y, C₀, ∇C)
+    concentration_gradient(x, y, C₀, ∇C)
 end
 ```
 
-We setup our population using two distinct chemotaxers
+
+We choose the parameters, initialise the population (with two distinct chemotaxers) with all bacteria to the left of the channel, and setup the model providing the functions for our concentration field to the `model_properties` dictionary.
 ```julia
+timestep = 0.1 # s
+Lx, Ly = 1000.0, 500.0 # μm
+extent = (Lx, Ly) # μm
+periodic = false
+
 n = 50
 microbes_brumley = [
     MicrobeBrumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
@@ -189,14 +195,7 @@ microbes_brown = [
     for i in 1:n
 ]
 microbes = [microbes_brumley; microbes_brown]
-```
 
-We choose the parameters and initialise the model providing the functions for our concentration field to the `model_properties` dictionary.
-```julia
-timestep = 0.1 # s
-Lx, Ly = 1000.0, 500.0 # μm
-extent = (Lx, Ly) # μm
-periodic = false
 C₀ = 0.0 # μM
 ∇C = 0.01 # μM/μm
 model_properties = Dict(
