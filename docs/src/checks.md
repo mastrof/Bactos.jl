@@ -97,20 +97,20 @@ hline!([0.0], lw=0.8, ls=:dash, lc=:black, lab=false)
 ## Mean-squared displacement
 It's also easy to evaluate the mean-squared displacement (MSD) of our microbes during a simulation.
 We will now run simulations of run-tumble bacteria using different reorientation distributions (parameterized by the average inclination angle θ), and compare the MSD as a function of θ to theoretical expectations using the well-known diffusivity formula by Lovely and Dahlquist (1975)<sup>2</sup>
-$$
+```math
 D = \dfrac{v^2\tau}{3(1-\alpha)}
-$$
-where $\alpha = \left< \cos\theta \right>$ represents the directional persistence of the trajectory.
+```
+where ``\alpha = \left< \cos\theta \right>`` represents the directional persistence of the trajectory.
 
-Since $D$ only depends on $\left< \cos\theta \right>$ and not on the full $P(\theta)$ distribution, we will simply use degenerate distributions $P_i(\theta) = \delta(\theta-\bar\theta)$ for different values $\bar\theta$ and compare the MSD estimated from our simulations to the theoretical expectation.
+Since ``D`` only depends on ``\left< \cos\theta \right>`` and not on the full ``P(\theta)`` distribution, we will simply use degenerate distributions ``P_i(\theta) = \delta(\theta-\bar\theta)`` for different values ``\bar\theta`` and compare the MSD estimated from our simulations to the theoretical expectation.
 Taktikos et al. (2013)<sup>1</sup> provide the analytical expression for the MSD which interpolates between the short-term ballistic regime and the long-term diffusive regime:
-$$
+```math
 {\rm MSD}(t) = 6D\dfrac{\tau}{1-\alpha}
 \left[
     \dfrac{(1-\alpha)t}{\tau}-1+
     {\rm exp}\left( -\dfrac{(1-\alpha)t}{\tau} \right)
 \right]
-$$
+```
 
 We will setup our systems as usual and then run each simulation independently
 ```julia
