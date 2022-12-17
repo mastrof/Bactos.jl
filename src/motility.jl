@@ -71,7 +71,7 @@ Base.@kwdef struct RunReverseFlick <: AbstractMotilityTwoStep
     polar_forward = Degenerate(π)
     azimuthal_forward = Arccos(-1,1)
     speed_backward = speed_forward
-    polar_backward = Degenerate(π/2)
+    polar_backward = [-π/2, π/2]
     azimuthal_backward = Arccos(-1,1)
     motile_state = TwoStates()
 end # struct 
