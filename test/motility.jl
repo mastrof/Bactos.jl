@@ -30,7 +30,7 @@ using Distributions: Uniform
     @test m.polar_forward == Degenerate(π)
     @test m.azimuthal_forward == Arccos()
     @test m.speed_backward === m.speed_forward
-    @test m.polar_backward == Degenerate(π/2)
+    @test m.polar_backward == [-π/2, π/2]
     @test m.azimuthal_backward === m.azimuthal_forward
     @test m.motile_state isa TwoStates
     @test motilestate(m) ∈ (ForwardState(), BackwardState())

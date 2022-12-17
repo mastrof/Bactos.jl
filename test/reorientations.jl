@@ -52,10 +52,11 @@ using Distributions: Uniform, Normal
         vel = rand_vel(2) .* U
         motility = RunReverseFlick(
             speed_forward = [U],
-            motile_state = TwoStates(ForwardState())
+            motile_state = TwoStates(ForwardState()),
+            polar_backward = [π/2] # exclude -π/2
         )
         m = Microbe{2}(id=1; vel, motility)
-        # 5 reverse-flick steps should lead back to initial orientation
+        # 5 steps should lead back to initial orientation
         # reverse (π)
         turn!(m, m.motility)
         @test SVector(m.vel) ≊ SVector(-vel[1], -vel[2])
