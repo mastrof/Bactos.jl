@@ -34,7 +34,7 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
-    diffeq = false, ode_integrator = dummy_integrator
+    ode_integrator = dummy_integrator
 )
 
     properties = Dict(
