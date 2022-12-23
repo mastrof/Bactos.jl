@@ -46,7 +46,7 @@ ode_integrator = initialise_ode(odestep!, u₀, (1.0, 1/spacing);
 model = initialise_model(;
     microbes, timestep,
     extent, spacing,
-    diffeq = true, ode_integrator
+    ode_integrator
 )
 
 u_field(model) = copy(model.integrator.u)
