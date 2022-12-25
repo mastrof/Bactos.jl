@@ -49,15 +49,15 @@ ode_integrator = initialise_ode(odestep!, u₀, (β, D, 1/spacing);
                                 dtmax = spacing^2/2D,
                                 saveat = (0:nsteps) .* timestep)
 
-function _concentration_field(pos,model)
+function concentration_field(pos,model)
     pos_idx = get_spatial_index(pos, model.xmesh, model)
     return model.integrator.u[pos_idx]
 end # function
-function _concentration_gradient(pos, model)
+function concentration_gradient(pos, model)
     pos_idx = get_spatial_index(pos, model.xmesh, model)
     return model.∇u[pos_idx]
 end # function
-function _concentration_time_derivative(pos, model)
+function concentration_time_derivative(pos, model)
     pos_idx = get_spatial_index(pos, model.xmesh, model)
     return model.∂ₜu[pos_idx]
 end # function
@@ -66,15 +66,15 @@ model_properties = Dict(
     :xmesh => xs,
     :∇u => ∇u,
     :∂ₜu => ∂ₜu,
-    :concentration_field => _concentration_field,
-    :concentration_gradient => _concentration_gradient,
-    :concentration_time_derivative => _concentration_time_derivative
+    :concentration_field => concentration_field,
+    :concentration_gradient => concentration_gradient,
+    :concentration_time_derivative => concentration_time_derivative
 )
 
 model = initialise_model(;
     microbes, timestep,
     extent, spacing, periodic = false,
-    diffeq = true, ode_integrator,
+    ode_integrator,
     model_properties
 )
 
@@ -85,12 +85,6 @@ u_field(model) = copy(model.integrator.u)
 mdata = [u_field]
 when = range(0, nsteps; step=round(Int, 5/timestep))
 when_model = range(0, nsteps; step=round(Int, 30/timestep))
-
-my_microbe_step!(microbe, model) = microbe_step!(
-    microbe, model;
-    affect! = brownberg_affect!,
-    turnrate = brownberg_turnrate
-)
 
 function update_model!(model)
     # update gradient

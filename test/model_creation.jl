@@ -23,8 +23,12 @@ using Test, BacteriaBasedModels, Random
         extent,
         random_positions = false,
     )
-    # no extra properties except timestep
-    @test model.properties == Dict(:timestep => timestep)
+    # test default properties
+    @test model.properties isa Dict{Symbol,Any}
+    @test Set(keys(model.properties)) == Set(
+        (:timestep, :compound_diffusivity, :concentration_field,
+        :concentration_gradient, :concentration_time_derivative, :integrator)
+    )
     @test model.timestep == timestep
     # the model should contain the agent `m`, not a copy
     @test model.agents[1] === m
@@ -84,18 +88,6 @@ using Test, BacteriaBasedModels, Random
         timestep = 0.1
         extent = 1.0
         model = initialise_model(; microbes, timestep, extent)
-        # if not specified, there should be no integrator field
-        @test !haskey(model.properties, :integrator)
-        # the dict is specialised to Float64
-        # if no different properties are specified
-        @test typeof(model.properties) == Dict{Symbol, Float64}
-
-        model = initialise_model(; microbes, timestep, extent, diffeq=true)
-        # if diffeq is turned to true, an integrator field is generated
-        @test haskey(model.properties, :integrator)
-        @test model.integrator == BacteriaBasedModels.dummy_integrator
-        # when extra fields are used, model.properties drops specialisation
-        @test typeof(model.properties) == Dict{Symbol, Any}
 
         # simple ode: du/dt = p
         # solution: u(t) = u(0) + p*t
@@ -111,7 +103,7 @@ using Test, BacteriaBasedModels, Random
 
         model = initialise_model(;
             microbes, timestep, extent,
-            diffeq = true, ode_integrator = integrator
+            ode_integrator = integrator
         )
         @test model.integrator === integrator
         # advance ode for n steps of size timestep

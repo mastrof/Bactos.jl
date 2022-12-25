@@ -34,23 +34,18 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
-    diffeq = false, ode_integrator = dummy_integrator
+    ode_integrator = dummy_integrator
 )
-    # This if-else allows specialisation of the dict whenever possible.
-    # Usually not possible, but at least avoids a source of performance loss
-    # in the simplest types of simulations.
-    if diffeq
-        properties = Dict(
-            :timestep => timestep,
-            :integrator => ode_integrator,
-            model_properties...
-        )
-    else
-        properties = Dict(
-            :timestep => timestep,
-            model_properties...
-        )
-    end # if
+
+    properties = Dict(
+        :timestep => timestep,
+        :compound_diffusivity => 608.0,
+        :concentration_field => (pos,model) -> 0.0,
+        :concentration_gradient => (pos,model) -> zero.(pos),
+        :concentration_time_derivative => (pos,model) -> 0.0,
+        :integrator => ode_integrator,
+        model_properties...
+    )
 
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
