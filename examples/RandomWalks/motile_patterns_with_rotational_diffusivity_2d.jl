@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Plots
 
 L = 800.0

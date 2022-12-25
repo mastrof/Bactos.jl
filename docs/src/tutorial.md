@@ -1,12 +1,12 @@
 # Tutorial
-Ready-to-run scripts for the functionalities introduced here can be found in the `examples` directory of the [repo](https://github.com/mastrof/BacteriaBasedModels).
+Ready-to-run scripts for the functionalities introduced here can be found in the `examples` directory of the [repo](https://github.com/mastrof/Bactos.jl).
 
 ## Creating a bacterium
 Bacteria are represented by custom types, that must be subtypes of the `AbstractAgent` type implemented by Agents.jl.
 ```@docs
 AbstractMicrobe
 ```
-By default, BacteriaBasedModels provides a basic `Microbe` type, that is usually sufficient for the simplest types of simulations.
+By default, `Bactos.jl` provides a basic `Microbe` type, that is usually sufficient for the simplest types of simulations.
 ```@docs
 Microbe
 ```
@@ -157,7 +157,7 @@ microbes = vcat(
 ## Chemotaxis in a linear gradient
 We will now reproduce a classical chemotaxis assay: bacteria in a rectangular channel with a linear attractant gradient.
 
-`BacteriaBasedModels.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(pos, model)`.
+`Bactos.jl` requires three functions to be defined for the built-in chemotaxis models to work: `concentration_field`, `concentration_gradient`, and `concentration_time_derivative`; all three need to take the two arguments `(pos, model)`.
 First we need to define our concentration field and its gradient (we don't define its time derivative since it will be held constant). We will use a linear gradient in the `x` direction.
 Here we can define also the gradient analytically, in more complex cases it can be evaluated numerically through the finite difference interface.
 ```julia

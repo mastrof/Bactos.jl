@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using DelimitedFiles
 using StaticArrays
 using LinearAlgebra

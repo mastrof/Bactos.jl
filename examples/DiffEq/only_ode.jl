@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Plots
 default(
     thickness_scaling = 1.5,

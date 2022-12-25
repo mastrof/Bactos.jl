@@ -1,6 +1,6 @@
 # Validation
 It's important to check that our microbes behave as expected.
-In this section, we compare various `BacteriaBasedModels.jl` functionalities against
+In this section, we compare various `Bactos.jl` functionalities against
 theoretical results from the literature.
 If some functionality lacks validation please open an issue.
 

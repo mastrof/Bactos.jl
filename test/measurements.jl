@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 
 @testset "Measurements" begin
     ≃(x,y) = isapprox(x,y,atol=1e-8) # \simeq
