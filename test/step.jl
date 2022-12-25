@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 using LinearAlgebra: norm
 using Agents: step!
 

@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 
 @testset "Finite differences" begin
     ≃(x,y) = isapprox(x,y;atol=1e-3) # \simeq

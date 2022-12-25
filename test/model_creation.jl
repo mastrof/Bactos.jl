@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 
 @testset "Model creation" begin
     timestep = 1.0

@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 using Distributions: Uniform
 
 @testset "Motility" begin

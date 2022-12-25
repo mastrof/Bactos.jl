@@ -1,6 +1,6 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 
-@testset "BacteriaBasedModels Tests" begin
+@testset "Bactos.jl Tests" begin
     include("microbe_creation.jl")
     include("motility.jl")
     include("model_creation.jl")

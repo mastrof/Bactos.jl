@@ -1,4 +1,4 @@
-using Test, BacteriaBasedModels, Random
+using Test, Bactos, Random
 using LinearAlgebra: norm, dot
 using StaticArrays
 using Distributions: Uniform, Normal
