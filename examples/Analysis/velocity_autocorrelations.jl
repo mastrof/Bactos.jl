@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Plots
 
 U = 30.0 # μm/s

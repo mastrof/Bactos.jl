@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Distributions
 using Plots
 

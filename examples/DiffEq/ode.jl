@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Agents: get_spatial_index
 using OrdinaryDiffEq: get_du!
 using Plots

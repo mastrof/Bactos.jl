@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Plots
 
 θ(a,b) = a>b ? 1.0 : 0.0

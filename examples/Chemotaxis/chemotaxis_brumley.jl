@@ -1,4 +1,4 @@
-using BacteriaBasedModels
+using Bactos
 using Plots
 
 conc_field(x,y,C,σ,x₀,y₀) = C * exp(-((x-x₀)^2+(y-y₀)^2)/(2σ^2))
