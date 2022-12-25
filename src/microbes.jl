@@ -3,7 +3,7 @@ export AbstractMicrobe, Microbe
 """
     AbstractMicrobe{D} <: AbstractAgent where {D<:Integer}
     YourMicrobeType{D} <: AbstractMicrobe{D}
-All microbe types in BacteriaBasedModels.jl simulations must be instances
+All microbe types in Bactos.jl simulations must be instances
 of user-defined types that are subtypes of `AbstractMicrobe`.
 The parameter `D` defines the dimensionality of the space in which the
 microbe type lives (1, 2 and 3 are currently supported).

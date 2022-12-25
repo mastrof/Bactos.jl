@@ -1,4 +1,4 @@
-module BacteriaBasedModels
+module Bactos
 
 using Agents
 using CellListMap.PeriodicSystems
