@@ -1,4 +1,4 @@
-# BacteriaBasedModels.jl
+# Bactos.jl
 
 Agent-based modelling of bacterial motility and chemotaxis in Julia.
 
@@ -30,11 +30,11 @@ If you use this package in work that leads to a publication, please cite the Git
 ```
 @misc{Foffi2022,
     author = {Foffi, R.},
-    title = {BacteriaBasedModels},
+    title = {Bactos.jl},
     year = {2022},
     publisher = {GitHub},
     journal = {GitHub repository},
-    howpublished = {\url{https://github.com/mastrof/BacteriaBasedModels}}
+    howpublished = {\url{https://github.com/mastrof/Bactos.jl}}
 }
 ```
 

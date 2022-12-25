@@ -1,11 +1,11 @@
 push!(LOAD_PATH, "../src/")
-using BacteriaBasedModels
+using Bactos
 
 using Documenter
 
 makedocs(
-    sitename = "BacteriaBasedModels.jl",
-    modules = [BacteriaBasedModels],
+    sitename = "Bactos.jl",
+    modules = [Bactos],
     pages = [
         "Home" => "index.md",
         "Tutorial" => "tutorial.md",
@@ -14,5 +14,5 @@ makedocs(
 )
 
 deploydocs(;
-    repo = "github.com/mastrof/BacteriaBasedModels"
+    repo = "github.com/mastrof/Bactos.jl"
 )
