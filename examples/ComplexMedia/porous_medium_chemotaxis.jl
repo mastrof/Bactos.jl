@@ -22,7 +22,7 @@ periodic = false
 n_microbes = 6
 
 # Initialise obstacles (read configuration from file) 
-obstacle_data = readdlm("phi04_rmin10_Lx1000_Ly500.dat")
+obstacle_data = readdlm("phi08_rmin5_rmax60_Lx1000_Ly500.dat")
 bodyrad = obstacle_data[:,1] # μm
 max_radius = maximum(bodyrad)
 bodypos = [Tuple(obstacle_data[i,2:3]) for i in axes(obstacle_data,1)] # μm
@@ -31,7 +31,7 @@ bodies = [
 ]
 
 # Initialise microbes at x=0
-microbes = [Celani{2}(
+microbes = [MicrobeBrumley{2}(
     id=i, pos=(0,rand()*extent[2])) for i in 1:n_microbes
 ]
 # Update microbe positions to avoid overlap with obstacles
