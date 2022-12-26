@@ -9,7 +9,7 @@ isoverlapping(p1, p2, r1, r2) = (norm(p1 .- p2) ≤ r1+r2)
 isoverlapping(a, b) = isoverlapping(a.pos, b.pos, a.radius, b.radius)
 
 # draw a circle
-function circleShape(x₀,y₀,r,n=500)
+function circleShape(x₀,y₀,r,n=100)
     θ = LinRange(0, 2π, n)
     x₀ .+ r.*sin.(θ), y₀ .+ r.*cos.(θ)
 end # function
@@ -19,15 +19,10 @@ end # function
 timestep = 0.1 # s
 extent = (1000.0, 500.0) # μm
 periodic = false
-microbe_radius = 0.5 # μm
-ω = 1.0 # 1/s
-U = 30.0 # μm/s 
-motility = RunTumble(speed = Degenerate(U))
-Drot = 0.1 # rad²/s
 n_microbes = 6
 
 # Initialise obstacles (read configuration from file) 
-obstacle_data = readdlm("phi04_rmin10_Lx1000_Ly500.dat")
+obstacle_data = readdlm("phi08_rmin5_rmax60_Lx1000_Ly500.dat")
 bodyrad = obstacle_data[:,1] # μm
 max_radius = maximum(bodyrad)
 bodypos = [Tuple(obstacle_data[i,2:3]) for i in axes(obstacle_data,1)] # μm
@@ -35,19 +30,14 @@ bodies = [
     ObstacleSphere(pos, r, glide!) for (r,pos) in zip(bodyrad,bodypos)
 ]
 
-# Initialise microbes
-microbes = [
-    Microbe{2}(
-        id=i, pos=Tuple(rand(2).*extent), vel=rand_vel(2).*U,
-        turn_rate=1.0, radius=0.5,
-        motility=RunTumble(speed=Degenerate(U)),
-        rotational_diffusivity=Drot
-    ) for i in 1:n_microbes
+# Initialise microbes at x=0
+microbes = [MicrobeBrumley{2}(
+    id=i, pos=(0,rand()*extent[2])) for i in 1:n_microbes
 ]
 # Update microbe positions to avoid overlap with obstacles
 for m in microbes
     while any(map(b -> isoverlapping(m,b), bodies))
-        m.pos = Tuple(rand(2) .* extent)
+        m.pos = (0, rand()*extent[2])
     end # while
 end # for
 
@@ -55,8 +45,23 @@ end # for
 cutoff_radius = 2 * (max_radius + microbe_radius + U*timestep)
 neighborlist = init_neighborlist(microbes, bodies, extent, cutoff_radius, periodic)
 
+# Setup concentration field
+C₀=0.0
+C₁=10.0
+concentration_field(x,y,C₀,C₁,Lx) = C₀+(C₁-C₀)/Lx*x
+function concentration_field(pos, model)
+    C₀, C₁ = model.cfield_params
+    Lx = model.space.extent[1]
+    x, y = pos
+    concentration_field(x,y,C₀,C₁,Lx)
+end
+function concentration_gradient(pos,model)
+    C₀, C₁ = model.cfield_params
+    Lx = model.space.extent[1]
+    return ((C₁-C₀)/Lx, 0.0)
+end
+
 model_properties = Dict(
-    :t => 0,
     :bodies => bodies,
     :neighborlist => neighborlist,
     :cfield_params => (C₀, C₁),
@@ -70,10 +75,7 @@ model = initialise_model(;
 )
 
 function update_model!(model)
-    model.t += 1
-    if model.t % 10 == 0
-        update_neighborlist!(model)
-    end
+    update_neighborlist!(model)
     surface_interaction!(model)
 end # function
 
@@ -91,14 +93,22 @@ plot(
     xlims=(0,extent[1]), ylims=(0,extent[2]),
     palette=:Dark2, legend=false,
     bgcolor=:black, grid=false, axis=false,
+    colorbar=:bottom, colorbartitle="C (μM)",
     ratio=1)
+
+contourf!(
+    0:extent[1], 0:extent[2],
+    (x,y) -> concentration_field(x,y,C₀,C₁,extent[1]),
+    color=:cividis, levels=100
+)
 
 for body in bodies
     plot!(
         circleShape(body.pos..., body.radius),
         seriestype=:shape, lw=0, lab=false,
-        c=:white, fillalpha=0.25,
+        c=:black, fillalpha=0.5,
     )
 end # for
 
-plot!(x,y)
+plot!(x,y, lc=(1:n_microbes)', lw=1.5)
+scatter!(x[end:end,:], y[end:end,:], mc=(1:n_microbes)', ms=8, msc=:black)
