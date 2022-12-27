@@ -95,7 +95,7 @@ function xie_turnrate(microbe, model)
     return ν₀*(1 + β*S)
 end
 
-function microbe_step!(microbe::AbstractXie, model)
+function microbe_step!(microbe::AbstractXie, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = xie_affect!,

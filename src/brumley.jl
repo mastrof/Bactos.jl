@@ -60,7 +60,7 @@ function brumley_turnrate(microbe, model)
     return (1 + exp(-Γ*S)) * ν₀/2 # modulated turn rate
 end # function
 
-function microbe_step!(microbe::MicrobeBrumley, model)
+function microbe_step!(microbe::MicrobeBrumley, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = brumley_affect!,
