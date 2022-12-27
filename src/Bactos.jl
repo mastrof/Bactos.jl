@@ -1,6 +1,6 @@
 module Bactos
 
-using Agents
+using Agents, Agents.Pathfinding
 using CellListMap.PeriodicSystems
 using Distributions
 using LinearAlgebra
@@ -22,16 +22,16 @@ include("utils.jl")
 # ABM setup
 include("model.jl")
 
+# Bodies & neighbor lists
+include("obstacles_spheres.jl")
+include("celllistmap.jl")
+
 # Stepping
 export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
 include("step_model.jl")
 include("finite_differences.jl")
-
-# Surfaces
-include("obstacles_spheres.jl")
-include("celllistmap.jl")
 
 # Chemotaxis models
 include("brown-berg.jl")

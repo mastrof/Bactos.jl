@@ -1,6 +1,5 @@
 using Bactos
 using DelimitedFiles
-using StaticArrays
 using LinearAlgebra
 using Plots
 
@@ -9,7 +8,7 @@ isoverlapping(p1, p2, r1, r2) = (norm(p1 .- p2) ≤ r1+r2)
 isoverlapping(a, b) = isoverlapping(a.pos, b.pos, a.radius, b.radius)
 
 # draw a circle
-function circleShape(x₀,y₀,r,n=100)
+function circleShape(x₀,y₀,r,n=50)
     θ = LinRange(0, 2π, n)
     x₀ .+ r.*sin.(θ), y₀ .+ r.*cos.(θ)
 end # function
@@ -22,16 +21,18 @@ periodic = false
 n_microbes = 6
 
 # Initialise obstacles (read configuration from file) 
-obstacle_data = readdlm("phi04_rmin10_Lx1000_Ly500.dat")
+obstacle_data = readdlm("phi065_rmin5_Lx1000_Ly500.dat")
 bodyrad = obstacle_data[:,1] # μm
 max_radius = maximum(bodyrad)
 bodypos = [Tuple(obstacle_data[i,2:3]) for i in axes(obstacle_data,1)] # μm
 bodies = [
-    ObstacleSphere(pos, r, glide!) for (r,pos) in zip(bodyrad,bodypos)
+    ObstacleSphere(pos, r) for (r,pos) in zip(bodyrad,bodypos)
 ]
 
+pathfinder = initialise_pathfinder(extent, periodic, 0.5, bodies)
+
 # Initialise microbes at x=0
-microbes = [MicrobeBrumley{2}(
+microbes = [Celani{2}(
     id=i, pos=(0,rand()*extent[2])) for i in 1:n_microbes
 ]
 # Update microbe positions to avoid overlap with obstacles
@@ -40,10 +41,6 @@ for m in microbes
         m.pos = (0, rand()*extent[2])
     end # while
 end # for
-
-# Initialise neighbor list
-cutoff_radius = 3 * max_radius
-neighborlist = init_neighborlist(microbes, bodies, extent, cutoff_radius, periodic)
 
 # Setup concentration field
 C₀=0.0
@@ -62,11 +59,10 @@ function concentration_gradient(pos,model)
 end
 
 model_properties = Dict(
-    :bodies => bodies,
-    :neighborlist => neighborlist,
     :cfield_params => (C₀, C₁),
     :concentration_field => concentration_field,
-    :concentration_gradient => concentration_gradient
+    :concentration_gradient => concentration_gradient,
+    :pathfinder => pathfinder
 )
 
 model = initialise_model(;
@@ -74,16 +70,8 @@ model = initialise_model(;
     random_positions = false
 )
 
-function update_model!(model)
-    update_neighborlist!(model)
-    surface_interaction!(model)
-end # function
-
-my_model_step!(model) = model_step!(model; update_model!)
-
-
 adata = [:pos]
-adf, = run!(model, microbe_step!, my_model_step!, 2000; adata)
+@time adf, = run!(model, microbe_step!, model_step!, 8000; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
 x = first.(traj)'
@@ -110,5 +98,5 @@ for body in bodies
     )
 end # for
 
-plot!(x,y, lc=(1:n_microbes)', lw=1.5)
+plot!(x,y, lc=(1:n_microbes)')
 scatter!(x[end:end,:], y[end:end,:], mc=(1:n_microbes)', ms=8, msc=:black)

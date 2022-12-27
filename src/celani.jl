@@ -101,7 +101,7 @@ function celani_turnrate(microbe, model)
     return ν₀*S # modulated turn rate
 end # function
 
-function microbe_step!(microbe::AbstractCelani, model)
+function microbe_step!(microbe::AbstractCelani, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = celani_affect!,

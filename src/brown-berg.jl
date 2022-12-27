@@ -50,7 +50,7 @@ function brownberg_turnrate(microbe, model)
     return ν₀*exp(-g*S) # modulated turn rate
 end # function
 
-function microbe_step!(microbe::MicrobeBrownBerg, model)
+function microbe_step!(microbe::MicrobeBrownBerg, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = brownberg_affect!,

@@ -8,4 +8,5 @@ using Test, Bactos, Random
     include("step.jl")
     include("measurements.jl")
     include("finite_differences.jl")
+    include("pathfinder.jl")
 end
