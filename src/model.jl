@@ -99,14 +99,6 @@ end # function
 
 
 function initialise_pathfinder(
-    extent, periodic::Bool,
-    r::Real, spheres::AbstractVector{ObstacleSphere{D}};
-    Δ::Real=r/2
-) where D
-    walkmap = get_walkmap(extent, r, spheres; Δ)
-    initialise_pathfinder(extent, periodic, walkmap)
-end
-function initialise_pathfinder(
     extent::Real, periodic::Bool,
     walkmap::BitArray{D}
 ) where D

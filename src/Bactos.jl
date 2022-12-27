@@ -16,15 +16,15 @@ include("distributions.jl")
 include("motility.jl")
 include("microbes.jl")
 
-# Surfaces
-include("obstacles_spheres.jl")
-include("celllistmap.jl")
-
 # Utility routines
 include("utils.jl")
 
 # ABM setup
 include("model.jl")
+
+# Bodies & neighbor lists
+include("obstacles_spheres.jl")
+include("celllistmap.jl")
 
 # Stepping
 export run! # from Agents

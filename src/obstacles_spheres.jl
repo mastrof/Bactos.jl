@@ -24,6 +24,16 @@ end # struct
 ObstacleSphere(pos::NTuple{D,<:Real}, radius::Real, affect!::Function) where D =
     ObstacleSphere{D}(Float64.(pos), Float64(radius), affect!)
 
+
+function initialise_pathfinder(
+    extent, periodic::Bool,
+    r::Real, spheres::AbstractVector{ObstacleSphere{D}};
+    Δ::Real=r/2
+) where D
+    walkmap = get_walkmap(extent, r, spheres; Δ)
+    initialise_pathfinder(extent, periodic, walkmap)
+end
+
 function get_walkmap(
     extent::NTuple{D,<:Real}, r::Real,
     spheres::AbstractVector{ObstacleSphere{D}};
