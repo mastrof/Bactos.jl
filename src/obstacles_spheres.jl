@@ -21,8 +21,9 @@ struct ObstacleSphere{D}
     radius::Float64
     affect!::Function
 end # struct
-ObstacleSphere(pos::NTuple{D,<:Real}, radius::Real, affect!::Function) where D =
-    ObstacleSphere{D}(Float64.(pos), Float64(radius), affect!)
+ObstacleSphere(pos::NTuple{D,<:Real}, radius::Real,
+    affect!::Function = (_,_,_) -> nothing
+) where D = ObstacleSphere{D}(Float64.(pos), Float64(radius), affect!)
 
 
 function initialise_pathfinder(
