@@ -1,6 +1,6 @@
 module Bactos
 
-using Agents
+using Agents, Agents.Pathfinding
 using CellListMap.PeriodicSystems
 using Distributions
 using LinearAlgebra
