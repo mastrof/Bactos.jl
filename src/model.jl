@@ -1,5 +1,5 @@
 export
-    initialise_model, initialise_ode
+    initialise_model, initialise_ode, initialise_pathfinder
 
 
 global const dummy_ODEProblem::ODEProblem = ODEProblem((du,u,p,t) -> nothing, [0.0], 0.0)
@@ -34,19 +34,8 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
-    ode_integrator = dummy_integrator
+    ode_integrator = dummy_integrator,
 )
-
-    properties = Dict(
-        :timestep => timestep,
-        :compound_diffusivity => 608.0,
-        :concentration_field => (pos,model) -> 0.0,
-        :concentration_gradient => (pos,model) -> zero.(pos),
-        :concentration_time_derivative => (pos,model) -> 0.0,
-        :integrator => ode_integrator,
-        model_properties...
-    )
-
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
         domain = Tuple(fill(extent, space_dim))
@@ -56,6 +45,18 @@ function initialise_model(;
         end # if
         domain = extent
     end # if
+
+    properties = Dict(
+        :timestep => timestep,
+        :compound_diffusivity => 608.0,
+        :concentration_field => (pos,model) -> 0.0,
+        :concentration_gradient => (pos,model) -> zero.(pos),
+        :concentration_time_derivative => (pos,model) -> 0.0,
+        :integrator => ode_integrator,
+        :pathfinder => AStar(domain; walkmap=trues(ntuple(_->1,space_dim)...)),
+        model_properties...
+    )
+
     space = ContinuousSpace(
         domain,
         spacing = spacing,
@@ -96,3 +97,26 @@ function initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
     integrator = init(prob, alg; kwargs...)
     return integrator
 end # function
+
+
+function initialise_pathfinder(
+    extent, periodic::Bool,
+    r::Real, spheres::AbstractVector{ObstacleSphere{D}};
+    Δ::Real=r/2
+) where D
+    walkmap = get_walkmap(extent, r, spheres; Δ)
+    initialise_pathfinder(extent, periodic, walkmap)
+end
+function initialise_pathfinder(
+    extent::Real, periodic::Bool,
+    walkmap::BitArray{D}
+) where D
+    initialise_pathfinder(ntuple(_->extent,D), periodic, walkmap)
+end
+function initialise_pathfinder(
+    extent::NTuple{D,<:Real}, periodic::Bool,
+    walkmap::BitArray{D}
+) where D
+    space = ContinuousSpace(extent; periodic)
+    AStar(space; walkmap)
+end
