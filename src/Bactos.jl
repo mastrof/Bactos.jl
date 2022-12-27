@@ -16,6 +16,10 @@ include("distributions.jl")
 include("motility.jl")
 include("microbes.jl")
 
+# Surfaces
+include("obstacles_spheres.jl")
+include("celllistmap.jl")
+
 # Utility routines
 include("utils.jl")
 
@@ -28,10 +32,6 @@ include("rotations.jl")
 include("step_microbes.jl")
 include("step_model.jl")
 include("finite_differences.jl")
-
-# Surfaces
-include("obstacles_spheres.jl")
-include("celllistmap.jl")
 
 # Chemotaxis models
 include("brown-berg.jl")
