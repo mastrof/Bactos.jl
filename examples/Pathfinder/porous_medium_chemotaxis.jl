@@ -1,5 +1,4 @@
 using Bactos
-using Agents
 using DelimitedFiles
 using LinearAlgebra
 using Plots
@@ -60,8 +59,6 @@ function concentration_gradient(pos,model)
 end
 
 model_properties = Dict(
-    :bodies => bodies,
-    :neighborlist => neighborlist,
     :cfield_params => (C₀, C₁),
     :concentration_field => concentration_field,
     :concentration_gradient => concentration_gradient,
