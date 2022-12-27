@@ -53,7 +53,6 @@ function initialise_model(;
         :concentration_gradient => (pos,model) -> zero.(pos),
         :concentration_time_derivative => (pos,model) -> 0.0,
         :integrator => ode_integrator,
-        :pathfinder => AStar(domain; walkmap=trues(ntuple(_->1,space_dim)...)),
         model_properties...
     )
 

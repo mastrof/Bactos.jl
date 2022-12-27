@@ -8,8 +8,11 @@ function microbe_step!(
 )
     dt = model.timestep # integration timestep
     # update microbe position
-    #move_agent!(microbe, model, dt)
-    pathfinder_step!(microbe, model, dt)
+    if haskey(model.properties, :pathfinder)
+        pathfinder_step!(microbe, model, dt)
+    else
+        move_agent!(microbe, model, dt)
+    end
     # reorient microbe due to rotational diffusion
     rotational_diffusion!(microbe, dt)
     # update microbe state
