@@ -22,7 +22,7 @@ periodic = false
 n_microbes = 6
 
 # Initialise obstacles (read configuration from file) 
-obstacle_data = readdlm("phi08_rmin5_rmax60_Lx1000_Ly500.dat")
+obstacle_data = readdlm("phi04_rmin10_Lx1000_Ly500.dat")
 bodyrad = obstacle_data[:,1] # μm
 max_radius = maximum(bodyrad)
 bodypos = [Tuple(obstacle_data[i,2:3]) for i in axes(obstacle_data,1)] # μm
@@ -42,7 +42,7 @@ for m in microbes
 end # for
 
 # Initialise neighbor list
-cutoff_radius = 2 * (max_radius + microbe_radius + U*timestep)
+cutoff_radius = 3 * max_radius
 neighborlist = init_neighborlist(microbes, bodies, extent, cutoff_radius, periodic)
 
 # Setup concentration field
