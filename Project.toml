@@ -16,6 +16,12 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 FiniteDifferences = "0.12"
+Agents = "5"
+StaticArrays = "1"
+Rotations = "1"
+CellListMap = "0.8"
+OrdinaryDiffEq = "6"
+Distributions = "0.25"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
