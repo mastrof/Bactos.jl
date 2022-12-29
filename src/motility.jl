@@ -1,7 +1,6 @@
 export
     AbstractMotility, AbstractMotilityOneStep, AbstractMotilityTwoStep,
-    AbstractMotileState, ForwardState, BackwardState, TwoStates,
-    switch!, motilestate,
+    MotileState, TwoState, Forward, Backward, switch!,
     RunTumble, RunReverse, RunReverseFlick
 
 """
@@ -32,23 +31,41 @@ Subtypes must have at least the following fields:
 - `speed_backward`: distribution of microbe speed, new values extracted after each turn
 - `polar_backward`: distribution of in-plane reorientations for motile state 1
 - `azimuthal_backward`: distribution of out-of-plane reorientations for motile state 1
-- `motile_state`: defines current motile state (`ForwardState` or `BackwardState`)
+- `motile_state`: defines current motile state (e.g. `Forward` or `Backward` for a `TwoState`)
 For 2-dimensional microbe types, only `polar_forward` and `polar_backward` define reorientations,
 while `azimuthal_forward` and `azimuthal_forward` are ignored.
 """
 abstract type AbstractMotilityTwoStep <: AbstractMotility end
 
-abstract type AbstractMotileState end
-struct ForwardState; end
-struct BackwardState; end
-ForwardBackward = Union{ForwardState,BackwardState}
-Base.@kwdef mutable struct TwoStates <: AbstractMotileState
-    state::ForwardBackward = rand((ForwardState, BackwardState))()
+# just a wrapper to allow state to be mutable
+mutable struct MotileState
+    state
 end
-switch(::ForwardState) = BackwardState()
-switch(::BackwardState) = ForwardState()
-switch!(s::TwoStates) = (s.state = switch(s.state))
-motilestate(m::AbstractMotilityTwoStep) = m.motile_state.state
+MotileState() = MotileState(TwoState())
+@enum TwoState::Bool Forward Backward
+# choose at random between Forward and Backward if not specified
+TwoState() = TwoState(Random.default_rng())
+TwoState(rng::AbstractRNG) = TwoState(rand(rng, (true, false)))
+# overload getproperty and setproperty! for more convenient access to state
+function Base.getproperty(obj::AbstractMotilityTwoStep, sym::Symbol)
+    if sym === :state
+        return obj.motile_state.state
+    else
+        return getfield(obj, sym)
+    end
+end
+function Base.setproperty!(value::AbstractMotilityTwoStep, name::Symbol, x)
+    if name === :state
+        return setfield!(value.motile_state, :state, x)
+    else
+        return setfield!(obj, name, x)
+    end
+end
+# define rules for switching motile state
+switch!(::AbstractMotilityOneStep) = nothing
+switch!(m::AbstractMotilityTwoStep) = switch!(m.state)
+switch!(s::TwoState) = (s = ~s; nothing)
+Base.:~(x::TwoState) = TwoState(~Bool(x))
 
 Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
     speed = Degenerate(30.0)
@@ -63,7 +80,7 @@ Base.@kwdef struct RunReverse <: AbstractMotilityTwoStep
     speed_backward = speed_forward
     polar_backward = polar_forward
     azimuthal_backward = azimuthal_forward
-    motile_state = TwoStates()
+    motile_state = MotileState()
 end # struct
 
 Base.@kwdef struct RunReverseFlick <: AbstractMotilityTwoStep
@@ -73,5 +90,5 @@ Base.@kwdef struct RunReverseFlick <: AbstractMotilityTwoStep
     speed_backward = speed_forward
     polar_backward = [-π/2, π/2]
     azimuthal_backward = Arccos(-1,1)
-    motile_state = TwoStates()
+    motile_state = MotileState()
 end # struct 
