@@ -83,6 +83,19 @@ function xie_affect!(microbe::XieNoisy, model; ε=1e-16)
 end
 
 function xie_turnrate(microbe, model)
+    if microbe.motility isa AbstractMotilityTwoStep
+        return xie_turnrate_twostep(microbe, model)
+    else
+        return xie_turnrate_onestep(microbe, model)
+    end
+end
+function xie_turnrate_onestep(microbe, model)
+    S = microbe.state
+    ν₀ = microbe.turn_rate_forward
+    β = microbe.gain_forward
+    return ν₀*(1 + β*S)
+end
+function xie_turnrate_twostep(microbe, model)
     S = microbe.state
     if motility.state == Forward
         ν₀ = microbe.turn_rate_forward
