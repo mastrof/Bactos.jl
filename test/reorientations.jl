@@ -16,16 +16,16 @@ using Distributions: Uniform, Normal
         turn!(m, m.motility)
         @test vel == m.vel
 
-        motile_state = TwoStates(ForwardState())
+        motile_state = MotileState(Forward)
         motility = RunReverseFlick(speed_forward=[1.0]; motile_state)
         vel = (1.0,)
         m = Microbe{1}(id=1; vel, motility)
         turn!(m, m.motility)
         @test vel == .-m.vel
-        @test motilestate(motility) == BackwardState()
+        @test motility.state == Backward
         turn!(m, m.motility)
         @test vel == m.vel
-        @test motilestate(motility) == ForwardState()
+        @test motility.state == Forward
     end
 
     @testset "Two-dimensional reorientations" begin
@@ -52,7 +52,7 @@ using Distributions: Uniform, Normal
         vel = rand_vel(2) .* U
         motility = RunReverseFlick(
             speed_forward = [U],
-            motile_state = TwoStates(ForwardState()),
+            motile_state = MotileState(Forward),
             polar_backward = [π/2] # exclude -π/2
         )
         m = Microbe{2}(id=1; vel, motility)
