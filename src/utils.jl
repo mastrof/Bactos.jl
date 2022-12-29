@@ -27,8 +27,7 @@ If `motilestate(m) == ForwardState()` extract from `speed_forward`, otherwise
 from `speed_backward`.
 """
 function rand_speed(m::AbstractMotilityTwoStep)
-    s = motilestate(m)
-    if s == ForwardState()
+    if m.state == Forward
         return rand(m.speed_forward)
     else
         return rand(m.speed_backward)

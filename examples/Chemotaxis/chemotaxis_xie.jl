@@ -15,8 +15,8 @@ concentration_field(t,C₀,C₁,t₁,t₂) = C₀+C₁*θ(t,t₁)*(1-θ(t,t₂))
 concentration_gradient(pos, model) = zero.(pos) # not used by Xie
 concentration_time_derivative(pos, model) = 0.0 # not used by Xie
 
-motility_fw = RunReverseFlick(motile_state = TwoStates(ForwardState()))
-motility_bw = RunReverseFlick(motile_state = TwoStates(BackwardState()))
+motility_fw = RunReverseFlick(motile_state = MotileState(Forward))
+motility_bw = RunReverseFlick(motile_state = MotileState(Backward))
 microbes = [
     XieNoisy{3}(id=1, turn_rate_forward=0, motility=motility_fw),
     XieNoisy{3}(id=2, turn_rate_backward=0, motility=motility_bw)
@@ -47,8 +47,8 @@ model = initialise_model(;
     extent, model_properties
 )
 
-_β(a) = motilestate(a.motility) == ForwardState() ? a.gain_forward : a.gain_backward
-state(a::AbstractXie) = max(1 + _β(a)*a.state, 0)
+β(a) = a.motility.state == Forward ? a.gain_forward : a.gain_backward
+state(a::AbstractXie) = max(1 + β(a)*a.state, 0)
 adata = [state, :state_m, :state_z]
 adf, = run!(model, microbe_step!, model_step!, nsteps; adata)
 S = vectorize_adf_measurement(adf, :state)'
