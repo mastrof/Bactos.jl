@@ -65,8 +65,7 @@ function Base.setproperty!(value::AbstractMotilityTwoStep, name::Symbol, x)
 end
 # define rules for switching motile state
 switch!(::AbstractMotilityOneStep) = nothing
-switch!(m::AbstractMotilityTwoStep) = switch!(m.state)
-switch!(s::TwoState) = (s = ~s; nothing)
+switch!(m::AbstractMotilityTwoStep) = (m.state = ~m.state; nothing)
 Base.:~(x::TwoState) = TwoState(~Bool(x))
 
 Base.@kwdef struct RunTumble <: AbstractMotilityOneStep
