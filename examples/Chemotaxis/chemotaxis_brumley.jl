@@ -12,7 +12,7 @@ function conc_grad(x,y,C,σ,x₀,y₀)
 end # function
 
 nmicrobes = 10
-microbes = [MicrobeBrumley{2}(id=i) for i in 1:nmicrobes]
+microbes = [Brumley{2}(id=i) for i in 1:nmicrobes]
 
 dt = 0.1 # s
 L = 500.0 # μm

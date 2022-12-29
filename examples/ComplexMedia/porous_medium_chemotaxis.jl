@@ -31,7 +31,7 @@ bodies = [
 ]
 
 # Initialise microbes at x=0
-microbes = [MicrobeBrumley{2}(
+microbes = [Brumley{2}(
     id=i, pos=(0,rand()*extent[2])) for i in 1:n_microbes
 ]
 # Update microbe positions to avoid overlap with obstacles
