@@ -1,8 +1,8 @@
-export MicrobeBrownBerg, brownberg_affect!, brownberg_turnrate, microbe_step!
+export BrownBerg, brownberg_affect!, brownberg_turnrate, microbe_step!
 
 
 """
-    MicrobeBrownBerg{D} <: AbstractMicrobe{D}
+    BrownBerg{D} <: AbstractMicrobe{D}
 Model of chemotactic E.coli from 'Brown and Berg (1974) PNAS'.
 Default parameters:
 - motility = RunTumble(speed = Degenerate(30.0))
@@ -14,7 +14,7 @@ Default parameters:
 - adaptation_time = 1 s
 - radius = 0 μm
 """
-Base.@kwdef mutable struct MicrobeBrownBerg{D} <: AbstractMicrobe{D}
+Base.@kwdef mutable struct BrownBerg{D} <: AbstractMicrobe{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunTumble(speed = Degenerate(30.0))
@@ -50,7 +50,7 @@ function brownberg_turnrate(microbe, model)
     return ν₀*exp(-g*S) # modulated turn rate
 end # function
 
-function microbe_step!(microbe::MicrobeBrownBerg, model::ABM)
+function microbe_step!(microbe::BrownBerg, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = brownberg_affect!,

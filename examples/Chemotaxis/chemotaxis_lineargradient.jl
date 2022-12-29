@@ -15,11 +15,11 @@ periodic = false
 #== MICROBE POPULATION ==#
 n = 50
 microbes_brumley = [
-    MicrobeBrumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
+    Brumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
     for i in 1:n
 ]
 microbes_brown = [
-    MicrobeBrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
+    BrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
     for i in 1:n
 ]
 
@@ -59,7 +59,7 @@ x = first.(traj)'
 y = last.(traj)'
 
 #== PLOTTING ==#
-lc = [typeof(m) <: MicrobeBrumley ? 1 : 2 for m in microbes] |> permutedims
+lc = [typeof(m) <: Brumley ? 1 : 2 for m in microbes] |> permutedims
 
 for t in axes(x,1)[1:4:end]
     contourf(

@@ -187,11 +187,11 @@ periodic = false
 
 n = 50
 microbes_brumley = [
-    MicrobeBrumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
+    Brumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
     for i in 1:n
 ]
 microbes_brown = [
-    MicrobeBrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
+    BrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
     for i in 1:n
 ]
 microbes = [microbes_brumley; microbes_brown]

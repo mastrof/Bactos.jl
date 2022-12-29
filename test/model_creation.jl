@@ -76,12 +76,12 @@ using Test, Bactos, Random
     # test mixed species models
     timestep = 1.0
     extent = 1.0
-    microbes = [MicrobeBrumley{1}(id=1), MicrobeBrumley{1}(id=2)]
+    microbes = [Brumley{1}(id=1), Brumley{1}(id=2)]
     model = initialise_model(; microbes, timestep, extent)
-    @test model.agents isa Dict{Int, MicrobeBrumley{1}}
-    microbes = [Microbe{1}(id=1), MicrobeBrumley{1}(id=2), Xie{1}(id=3)]
+    @test model.agents isa Dict{Int, Brumley{1}}
+    microbes = [Microbe{1}(id=1), Brumley{1}(id=2), Xie{1}(id=3)]
     model = initialise_model(; microbes, timestep, extent)
-    @test model.agents isa Dict{Int, Union{Microbe{1}, MicrobeBrumley{1}, Xie{1}}}
+    @test model.agents isa Dict{Int, Union{Microbe{1}, Brumley{1}, Xie{1}}}
 
     @testset "DiffEq Integrator" begin
         microbes = [Microbe{1}(id=0)]

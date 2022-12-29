@@ -48,12 +48,12 @@ using LinearAlgebra: norm
     
     @testset "Brumley" begin
         # test type hierarchy
-        @test MicrobeBrumley{1} <: AbstractMicrobe
-        @test MicrobeBrumley{2} <: AbstractMicrobe
-        @test MicrobeBrumley{3} <: AbstractMicrobe
+        @test Brumley{1} <: AbstractMicrobe
+        @test Brumley{2} <: AbstractMicrobe
+        @test Brumley{3} <: AbstractMicrobe
 
         # test arguments
-        m = MicrobeBrumley{3}(id=0)
+        m = Brumley{3}(id=0)
         @test m.pos isa NTuple{3,Float64}
         @test m.vel isa NTuple{3,Float64}
         @test m.turn_rate == 1/0.45
@@ -72,12 +72,12 @@ using LinearAlgebra: norm
 
     @testset "Brown-Berg" begin
         # test type hierarchy
-        @test MicrobeBrownBerg{1} <: AbstractMicrobe
-        @test MicrobeBrownBerg{2} <: AbstractMicrobe
-        @test MicrobeBrownBerg{3} <: AbstractMicrobe
+        @test BrownBerg{1} <: AbstractMicrobe
+        @test BrownBerg{2} <: AbstractMicrobe
+        @test BrownBerg{3} <: AbstractMicrobe
 
         # test arguments
-        m = MicrobeBrownBerg{3}(id=0)
+        m = BrownBerg{3}(id=0)
         @test m.pos isa NTuple{3,Float64}
         @test m.vel isa NTuple{3,Float64}
         @test m.turn_rate == 1/0.67

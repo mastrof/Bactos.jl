@@ -16,7 +16,7 @@ default(
 )
 
 nmicrobes = 20
-microbes = [MicrobeBrownBerg{1}(id=i) for i in 1:nmicrobes]
+microbes = [BrownBerg{1}(id=i) for i in 1:nmicrobes]
 
 extent = 1000.0
 spacing = 0.5

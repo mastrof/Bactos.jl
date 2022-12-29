@@ -1,8 +1,8 @@
-export MicrobeBrumley, brumley_affect!, brumley_turnrate
+export Brumley, brumley_affect!, brumley_turnrate
 
 
 """
-    MicrobeBrumley{D} <: AbstractMicrobe{D}
+    Brumley{D} <: AbstractMicrobe{D}
 Model of chemotactic bacterium from 'Brumley et al. (2019) PNAS'.
 The model is optimized for simulation of marine bacteria and accounts
 for the presence of (gaussian) sensing noise in the chemotactic pathway.
@@ -17,7 +17,7 @@ Default parameters:
 - chemotactic_precision = 6.0 → 'Π'
 - radius = 0.5 μm → 'a'
 """
-Base.@kwdef mutable struct MicrobeBrumley{D} <: AbstractMicrobe{D}
+Base.@kwdef mutable struct Brumley{D} <: AbstractMicrobe{D}
     id::Int
     pos::NTuple{D,Float64} = ntuple(zero, D)
     motility = RunReverseFlick(speed_forward = Degenerate(46.5))
@@ -60,7 +60,7 @@ function brumley_turnrate(microbe, model)
     return (1 + exp(-Γ*S)) * ν₀/2 # modulated turn rate
 end # function
 
-function microbe_step!(microbe::MicrobeBrumley, model::ABM)
+function microbe_step!(microbe::Brumley, model::ABM)
     microbe_step!(
         microbe, model;
         affect! = brumley_affect!,
