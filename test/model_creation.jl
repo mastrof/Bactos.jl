@@ -26,7 +26,7 @@ using Test, Bactos, Random
     # test default properties
     @test model.properties isa Dict{Symbol,Any}
     @test Set(keys(model.properties)) == Set(
-        (:timestep, :compound_diffusivity, :concentration_field,
+        (:t, :timestep, :compound_diffusivity, :concentration_field,
         :concentration_gradient, :concentration_time_derivative, :integrator)
     )
     @test model.timestep == timestep
