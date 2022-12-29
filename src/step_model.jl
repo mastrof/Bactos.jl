@@ -18,4 +18,5 @@ function model_step!(model;
     update_model!(model)
     # increase step count
     model.t += 1
+    return nothing
 end # function
