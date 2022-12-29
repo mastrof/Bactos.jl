@@ -43,6 +43,8 @@ mutable struct MotileState
 end
 MotileState() = MotileState(TwoState())
 @enum TwoState::Bool Forward Backward
+Base.show(io::IO, ::MIME"text/plain", x::TwoState) = 
+    x == Forward ? print(io, "Forward") : print(io, "Backward")
 # choose at random between Forward and Backward if not specified
 TwoState() = TwoState(Random.default_rng())
 TwoState(rng::AbstractRNG) = TwoState(rand(rng, (true, false)))
