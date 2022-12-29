@@ -40,7 +40,6 @@ model_properties = Dict(
     :C₁ => C₁,
     :t₁ => t₁,
     :t₂ => t₂,
-    :t => 0,
 )
 
 model = initialise_model(;
@@ -48,13 +47,10 @@ model = initialise_model(;
     extent, model_properties
 )
 
-update_model!(model) = (model.t += 1)
-my_model_step!(model) = model_step!(model; update_model!)
-
 _β(a) = motilestate(a.motility) == ForwardState() ? a.gain_forward : a.gain_backward
 state(a::AbstractXie) = max(1 + _β(a)*a.state, 0)
 adata = [state, :state_m, :state_z]
-adf, = run!(model, microbe_step!, my_model_step!, nsteps; adata)
+adf, = run!(model, microbe_step!, model_step!, nsteps; adata)
 S = vectorize_adf_measurement(adf, :state)'
 m = (vectorize_adf_measurement(adf, :state_m)')[:,1] # take only fw
 z = (vectorize_adf_measurement(adf, :state_z)')[:,1] # take only fw
