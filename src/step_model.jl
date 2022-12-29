@@ -14,9 +14,9 @@ function model_step!(model;
     if haskey(model.properties, :integrator)
         step!(model.integrator, model.timestep, true)
     end # if
-    # update model properties
-    update_model!(model)
     # increase step count
     model.t += 1
+    # update model properties
+    update_model!(model)
     return nothing
 end # function
