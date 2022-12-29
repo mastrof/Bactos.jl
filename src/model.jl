@@ -47,6 +47,7 @@ function initialise_model(;
     end # if
 
     properties = Dict(
+        :t => 0,
         :timestep => timestep,
         :compound_diffusivity => 608.0,
         :concentration_field => (pos,model) -> 0.0,
