@@ -42,10 +42,19 @@ mutable struct MotileState
     state
 end
 MotileState() = MotileState(TwoState())
+"""
+    TwoState <: Enum{Bool}
+Represents the state of a two-step motile pattern, can take values
+`Forward` or `Backward`.
+"""
 @enum TwoState::Bool Forward Backward
 Base.show(io::IO, ::MIME"text/plain", x::TwoState) = 
     x == Forward ? print(io, "Forward") : print(io, "Backward")
 # choose at random between Forward and Backward if not specified
+"""
+    TwoState([rng::AbstractRng])
+Randomly generate the state of a two-step motile pattern.
+"""
 TwoState() = TwoState(Random.default_rng())
 TwoState(rng::AbstractRNG) = TwoState(rand(rng, (true, false)))
 # overload getproperty and setproperty! for more convenient access to state
@@ -65,6 +74,11 @@ function Base.setproperty!(value::AbstractMotilityTwoStep, name::Symbol, x)
 end
 # define rules for switching motile state
 switch!(::AbstractMotilityOneStep) = nothing
+""" 
+    switch!(m::AbstractMotilityTwoStep)
+Switch the state of a two-step motility pattern (`m.state`)
+from `Forward` to `Backward` and viceversa.
+"""
 switch!(m::AbstractMotilityTwoStep) = (m.state = ~m.state; nothing)
 Base.:~(x::TwoState) = TwoState(~Bool(x))
 
