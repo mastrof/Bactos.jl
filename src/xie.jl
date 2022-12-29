@@ -97,10 +97,10 @@ function xie_turnrate_onestep(microbe, model)
 end
 function xie_turnrate_twostep(microbe, model)
     S = microbe.state
-    if motility.state == Forward
+    if microbe.motility.state == Forward
         ν₀ = microbe.turn_rate_forward
         β = microbe.gain_forward
-    elseif motility.state == Backward
+    else
         ν₀ = microbe.turn_rate_backward
         β = microbe.gain_backward
     end
