@@ -58,6 +58,7 @@ jobs:
         with:
           file: lcov.info
   docs:
+    if: github.event.pull_request.draft == false
     name: Documentation
     runs-on: ubuntu-latest
     steps:
