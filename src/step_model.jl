@@ -55,15 +55,23 @@ function encounters!(model::ABM;
 end
 
 """
-    reinsert!(microbe::AbstractMicrobe, model::ABM, bodies::Symbol)
-Reinsert `microbe` in a random position which is not colliding with
-any body in `model.properties[bodies]`.
+    reinsert!(microbe::AbstractMicrobe, model::ABM, bodies::Symbol;
+        avoid_bodies::Bool = true
+    )
+Reinsert `microbe` in a random position.
+If `avoid_bodies` is set to `true`, only positions which don't trigger
+a new encounter with any body in `model.properties[bodies]` are accepted.
 """
-function reinsert!(microbe::AbstractMicrobe, model::ABM, bodies::Symbol)
+function reinsert!(
+    microbe::AbstractMicrobe, model::ABM, bodies::Symbol;
+    avoid_bodies::Bool = true
+)
     # move to a new position at random until an encounter is not triggered
     while true
         any_overlap = false
         move_agent!(microbe, model)
+        # don't perform any check if avoid_bodies==false
+        (~avoid_bodies) && break
         for body in model.properties[bodies]
             if is_encounter(microbe, body, model)
                 # break if position is not valid
