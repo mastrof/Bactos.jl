@@ -9,4 +9,5 @@ using Test, Bactos, Random
     include("measurements.jl")
     include("finite_differences.jl")
     include("pathfinder.jl")
+    include("encounters.jl")
 end
