@@ -1,4 +1,4 @@
-export ObstacleSphere, get_walkmap, stick!, glide!, bounce!
+export ObstacleSphere, get_walkmap, stick!, glide!, bounce!, is_encounter
 
 """
     struct ObstacleSphere{D}
@@ -35,6 +35,20 @@ function initialise_pathfinder(
     initialise_pathfinder(extent, periodic, walkmap)
 end
 
+"""
+    is_inside(m::AbstractMicrobe, s::ObstacleSphere)::Bool
+Check if microbe `m` is inside the volume of sphere `s`.
+"""
+is_inside(m::AbstractMicrobe, s::ObstacleSphere)::Bool = is_inside(m.pos, m.radius, s)
+"""
+    is_inside(pos::NTuple{D,Float64}, r::Real, s::ObstacleSphere{D})::Bool where D
+Check if a sphere of radius `r` centered at `pos` is inside the volume of sphere `s`.
+"""
+function is_inside(pos::NTuple{D,Float64}, r::Real, s::ObstacleSphere{D})::Bool where D
+    norm(pos .- s.pos) < r + s.radius
+end
+
+
 function get_walkmap(
     extent::NTuple{D,<:Real}, r::Real,
     spheres::AbstractVector{ObstacleSphere{D}};
@@ -49,17 +63,11 @@ function is_walkable(
     spheres::AbstractVector{ObstacleSphere{D}}
 )::Bool where D
     for sphere in spheres
-        if !is_walkable(pos, r, sphere)
+        if is_inside(pos, r, sphere)
             return false
         end
     end
     return true
-end
-function is_walkable(
-    pos::NTuple{D,<:Real}, r::Real,
-    sphere::ObstacleSphere{D}
-)::Bool where D
-    norm(pos .- sphere.pos) ≥ r + sphere.radius
 end
 
 
@@ -138,3 +146,46 @@ function bounce!(microbe, sphere::ObstacleSphere, model; ζ=1.0)
         walk!(microbe, z₂, model)
     end # if
 end # function
+
+
+"""
+    is_encounter(microbe::AbstractMicrobe, sphere::ObstacleSphere, model::ABM)::Bool
+Test if an encounter between `microbe` and `sphere` occurred.
+
+## Detailed explanation
+More exactly, the function tests whether an encounter will occur at the *next* step.
+Since reorientation is the last thing to happen to a microbe at step `t`,
+and displacement is the first thing to happen at step `t+1`, at the end of step
+`t` we can know exactly whether an encounter will occur during `t+1`.
+
+Instead of only a naive distance check between `microbe` and `sphere` (which would
+be unreliable in those cases where `sphere.radius` is comparable or smaller
+than the microbial displacement during a single timestep,
+`norm(microbe.vel)*model.timestep`), we say that an encounter has occured if
+the displacement vector of `microbe` from time `t` to `t+1` intersects
+the surface of the `sphere`).
+See http://paulbourke.net/geometry/circlesphere/ for geometrical derivation.
+"""
+function is_encounter(
+    microbe::AbstractMicrobe, sphere::ObstacleSphere,
+    model::ABM
+)::Bool
+    # if microbe is inside sphere, return true 
+    is_inside(microbe, sphere) && return true
+    # otherwise, compute intersection between displacement and sphere surface
+    pos_next = microbe.pos .+ microbe.vel .* model.timestep
+    x₁ = microbe.pos .- sphere.pos
+    x₂ = pos_next .- sphere.pos
+    Δx = x₂ .- x₁
+    a = dot(Δx, Δx)
+    b = 2.0 * dot(Δx, x₁)
+    R = sphere.radius + microbe.radius
+    c = dot(x₁, x₁) - R*R
+    S = b*b - 4*a*c
+    # S<0 → no intersection
+    S < 0 && return false
+    u₁ = (-b + √S) / (2a)
+    u₂ = (-b - √S) / (2a)
+    # the segment intersects the sphere if at least one u ∈ [0,1]
+    return (0 ≤ u₁ ≤ 1) || (0 ≤ u₂ ≤ 1)
+end
