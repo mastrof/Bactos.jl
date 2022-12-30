@@ -33,8 +33,7 @@ with signature `(microbe, body, model)`.
 For certain `body` types, `is_encounter` is already defined by `Bactos.jl`;
 if you need extra or different functionality overload `Bactos.is_encounter`.
 
-Whenever an encounter occurs, `model.properties[key]` is increased by 1;
-if this property does not exist it is created on the spot.
+Whenever an encounter occurs, `model.properties[key]` is increased by 1.
 Then the `encounter_affect!` function is applied, which determines what
 happens after the encounter (e.g. the microbe can be reinserted).
 
@@ -44,10 +43,6 @@ function encounters!(model::ABM;
     bodies::Symbol = :bodies, key::Symbol = :encounters,
     encounter_affect!::Function = reinsert!
 )
-    # add key to model if it's not already defined
-    if ~haskey(model.properties, key)
-        model.properties[key] = 0
-    end
     for microbe in allagents(model)
         for body in model.properties[bodies]
             if is_encounter(microbe, body, model)
