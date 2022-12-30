@@ -27,7 +27,7 @@ using Test, Bactos, Random
     @test model.properties isa Dict{Symbol,Any}
     @test Set(keys(model.properties)) == Set(
         (:t, :timestep, :compound_diffusivity, :concentration_field,
-        :concentration_gradient, :concentration_time_derivative, :integrator)
+        :concentration_gradient, :concentration_time_derivative)
     )
     @test model.timestep == timestep
     # the model should contain the agent `m`, not a copy
@@ -103,7 +103,7 @@ using Test, Bactos, Random
 
         model = initialise_model(;
             microbes, timestep, extent,
-            ode_integrator = integrator
+            model_properties = Dict(:integrator => integrator)
         )
         @test model.integrator === integrator
         # advance ode for n steps of size timestep

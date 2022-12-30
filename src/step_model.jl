@@ -5,7 +5,7 @@ export model_step!
 Update model properties through the `update_model!` function
 (defaults to nothing).
 If `model` contains an OrdinaryDiffEq integrator among its
-properties (`model.properties.integrator`), also perform an integration step.
+properties (`model.integrator`), also perform an integration step.
 """
 function model_step!(model;
     update_model!::Function = (model) -> nothing
