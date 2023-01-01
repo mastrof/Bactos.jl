@@ -8,6 +8,7 @@ export
         extent, spacing = extent/20, periodic = true,
         random_positions = true,
         model_properties = Dict(),
+        kwargs...
     )
 Initialise an `AgentBasedModel` from population `microbes`.
 Requires the integration `timestep` and the `extent` of the simulation box.
@@ -16,8 +17,10 @@ When `random_positions = true` the positions assigned to `microbes` are
 ignored and new ones, extracted randomly in the simulation box, are assigned;
 if `random_positions = false` the original positions in `microbes` are kept.
 
-Any extra property can be assigned to the model via the `model_properties`
-dictionary.
+Extra properties can be assigned to the model via the `model_properties` dictionary.
+
+Further kwargs will be sent through to the `AgentBasedModel` constructor from
+Agents.jl, so that all its functionalities can be accessed.
 """
 function initialise_model(;
     microbes,
