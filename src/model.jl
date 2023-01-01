@@ -25,13 +25,16 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
+    kwargs...
 )
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
         domain = Tuple(fill(extent, space_dim))
     else
         if length(extent) ≠ space_dim
-            error("Space extent and microbes must have the same dimensionality.")
+            throw(ArgumentError(
+                "Space extent and microbes must have the same dimensionality."
+            ))
         end # if
         domain = extent
     end # if
@@ -43,14 +46,11 @@ function initialise_model(;
         :concentration_field => (pos,model) -> 0.0,
         :concentration_gradient => (pos,model) -> zero.(pos),
         :concentration_time_derivative => (pos,model) -> 0.0,
+        :update! => model_step!,
         model_properties...
     )
 
-    space = ContinuousSpace(
-        domain,
-        spacing = spacing,
-        periodic = periodic
-    )
+    space = ContinuousSpace(domain; spacing, periodic)
 
     # falls back to eltype(microbes) if there is a single microbe type,
     # builds a Union type if eltype(microbes) is abstract
@@ -60,6 +60,8 @@ function initialise_model(;
         MicrobeType, space;
         properties,
         scheduler = Schedulers.fastest,
+        warn = false,
+        kwargs...
     )
 
     for microbe in microbes
