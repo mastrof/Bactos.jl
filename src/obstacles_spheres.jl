@@ -26,6 +26,13 @@ ObstacleSphere(pos::NTuple{D,<:Real}, radius::Real,
 ) where D = ObstacleSphere{D}(Float64.(pos), Float64(radius), affect!)
 
 
+function add_pathfinder!(model::ABM,
+    r::Real, spheres::AbstractVector{ObstacleSphere};
+    Δ::Real=r/2
+)
+    walkmap = get_walkmap(model.space.extent, r, spheres; Δ)
+    add_pathfinder!(model, walkmap)
+end
 function initialise_pathfinder(
     extent, periodic::Bool,
     r::Real, spheres::AbstractVector{ObstacleSphere{D}};
