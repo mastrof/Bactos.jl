@@ -39,21 +39,17 @@ function odestep!(du, u, p, t)
     du[1] = du[2] = du[end] = du[end-1] = 0.0
 end # function
 
-ode_integrator = initialise_ode(odestep!, u₀, (1.0, 1/spacing);
-                                dtmax = spacing^2/2)
-
-
 model = initialise_model(;
     microbes, timestep,
     extent, spacing,
-    ode_integrator
 )
+add_diffeq!(model, odestep!, u₀, (1.0, 1/spacing); dtmax=spacing^2/2)
 
 u_field(model) = copy(model.integrator.u)
 mdata = [u_field]
 nsteps = round(Int, 600 / timestep)
 when_model = range(0, nsteps; step=round(Int, 30/timestep))
-_, mdf = run!(model, microbe_step!, model_step!, nsteps; mdata, when_model)
+_, mdf = run!(model, microbe_step!, model.update!, nsteps; mdata, when_model)
 
 linecolors = palette(:plasma, size(mdf,1))
 plot(color_palette = linecolors)
