@@ -1,5 +1,4 @@
-export
-    initialise_model, initialise_ode, initialise_pathfinder
+export initialise_model, model_step!
 
 """
     initialise_model(;
@@ -78,31 +77,24 @@ function initialise_model(;
     return model
 end # function
 
+
 """
-    initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
-Initialise an OrdinaryDiffEq integrator, using the in-place stepping algorithm
-`ode_step!`, initial conditions `u₀` and parameters `p`.
-Default integration algorithm is `Tsit5` (others can be accessed by importing
-OrdinaryDiffEq).
-Any extra parameter can be passed over to the integrator via kwargs.
+    model_step!(model::ABM)
+Model stepping function, stored in `model.update!`.
+By default, it only increases the time count of `model` (`model.t += 1`).
+
+Extra functionalities can be added to the basic `model_step!` through
+function chaining e.g. `chain!(model, (f₁!, f₂!, f₃!))`.
+
+Some add-ons of general utility are already provided by Bactos.jl
+(see respective documentations for more details):
+* `diff_step!`: used to integrate differential equations if `model` has an
+    `integrator` property (`model.integrator`)
+* `update_neighborlist!`: update the microbe positions in a neighborlist
+* `surface_interaction!`: used to evaluate the effect of interactions between
+    microbes and other surfaces
 """
-function initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
-    prob = ODEProblem(ode_step!, u₀, (0.0, Inf), p)
-    integrator = init(prob, alg; kwargs...)
-    return integrator
+function model_step!(model::ABM)
+    model.t += 1
+    return nothing
 end # function
-
-
-function initialise_pathfinder(
-    extent::Real, periodic::Bool,
-    walkmap::BitArray{D}
-) where D
-    initialise_pathfinder(ntuple(_->extent,D), periodic, walkmap)
-end
-function initialise_pathfinder(
-    extent::NTuple{D,<:Real}, periodic::Bool,
-    walkmap::BitArray{D}
-) where D
-    space = ContinuousSpace(extent; periodic)
-    AStar(space; walkmap)
-end

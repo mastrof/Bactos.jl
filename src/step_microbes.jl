@@ -24,10 +24,3 @@ function microbe_step!(
     end # if
     return nothing
 end # function
-
-function pathfinder_step!(microbe::AbstractMicrobe, model::ABM, dt::Real)
-    target_position = microbe.pos .+ microbe.vel .* dt
-    U = norm(microbe.vel)
-    plan_route!(microbe, target_position, model.pathfinder)
-    move_along_route!(microbe, model, model.pathfinder, U, dt)
-end
