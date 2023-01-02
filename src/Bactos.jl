@@ -21,6 +21,8 @@ include("utils.jl")
 
 # ABM setup
 include("model.jl")
+include("diffeq.jl")
+include("pathfinder.jl")
 
 # Bodies & neighbor lists
 include("obstacles_spheres.jl")
