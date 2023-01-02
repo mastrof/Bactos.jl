@@ -1,6 +1,24 @@
 export
-    init_neighborlist, update_neighborlist!,
+    add_neighborlist!, init_neighborlist, update_neighborlist!,
     surface_interaction!
+
+
+function add_neighborlist!(model::ABM,
+    x::AbstractVector, cutoff::Real;
+    listname::Symbol = :neighborlist, x_or_y::Char = 'x'
+)
+    neighborlist = init_neighborlist(x, model.space.extent, cutoff, model.space.periodic)
+    model.properties[listname] = neighborlist
+    chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
+end
+function add_neighborlist!(model::ABM,
+    x::AbstractVector, y::AbstractVector, cutoff::Real;
+    listname::Symbol = :neighborlist, x_or_y::Char = 'x'
+)
+    neighborlist = init_neighborlist(x, y, model.space.extent, cutoff, model.space.periodic)
+    model.properties[listname] = neighborlist
+    chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
+end
 
 """
 init_neighborlist(
