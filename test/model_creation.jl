@@ -96,13 +96,19 @@ using Test, Bactos, Random
 
         model = initialise_model(;
             microbes, timestep, extent,
-            model_properties = Dict(:integrator => integrator)
         )
-        @test model.integrator === integrator
-        # advance ode for n steps of size timestep
+        add_diffeq!(model, my_ode_step!, u₀, p)
+        # add_diffeq! adds an integrator to model properties
+        @test haskey(model.properties, :integrator)
+        # advance ode for n steps of length timestep
         n = 5
-        run!(model, microbe_step!, model_step!, n)
-        @test model.integrator === integrator
-        @test integrator.u[1] ≈ p[1] * timestep * n
+        run!(model, microbe_step!, model.update!, n)
+        @test model.integrator.u[1] ≈ p[1] * timestep * n
+        # if we use model_step! instead of model.update!, ode is not integrated
+        run!(model, microbe_step!, model_step!, 15)
+        @test model.integrator.u[1] ≈ p[1] * timestep * n
+        # model.update! now contains diffeq_step!
+        diffeq_step!(model) # one step
+        @test model.integrator.u[1] ≈ p[1] * timestep * (n+1)
     end
 end
