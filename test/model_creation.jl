@@ -49,13 +49,6 @@ using Test, Bactos, Random
     # the new position should be inside of extent
     @test all(0 .≤ model.agents[1].pos .< extent)
 
-    # if extent is a tuple, orthorhombic domains can be created
-    model = initialise_model(;
-        microbes = [Microbe{3}(id=0)], timestep,
-        extent = (300.0,400.0,250.0)
-    )
-    @test model.space.extent == (300.0, 400.0, 250.0)
-
     # if extent is a scalar, the domain is cubic;
     # if extent is a tuple, the domain can be orthorhombic;
     # if extent has different size from microbe dimensionality,
