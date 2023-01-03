@@ -32,4 +32,12 @@ using LinearAlgebra: norm
         end
     end
     @test walkmap == walkmap2
+
+    L = 10
+    extent = (L, L)
+    timestep = 0.1
+    microbes = [Microbe{2}(id=1)]
+    model = initialise_model(; microbes, extent, timestep)
+    add_pathfinder!(model, walkmap)
+    @test haskey(model.properties, :pathfinder)
 end
