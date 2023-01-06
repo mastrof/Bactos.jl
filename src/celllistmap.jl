@@ -3,11 +3,14 @@ export
     surface_interaction!
 
 
+isperiodic(model::ABM) = isperiodic(model.space)
+isperiodic(space::ContinuousSpace{D,P,T,A}) where {D,P,T,A,} = P
+
 function add_neighborlist!(model::ABM,
     x::AbstractVector, cutoff::Real;
     listname::Symbol = :neighborlist, x_or_y::Char = 'x'
 )
-    neighborlist = init_neighborlist(x, model.space.extent, cutoff, model.space.periodic)
+    neighborlist = init_neighborlist(x, model.space.extent, cutoff, isperiodic(model))
     model.properties[listname] = neighborlist
     chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
 end
@@ -15,7 +18,7 @@ function add_neighborlist!(model::ABM,
     x::AbstractVector, y::AbstractVector, cutoff::Real;
     listname::Symbol = :neighborlist, x_or_y::Char = 'x'
 )
-    neighborlist = init_neighborlist(x, y, model.space.extent, cutoff, model.space.periodic)
+    neighborlist = init_neighborlist(x, y, model.space.extent, cutoff, isperiodic(model))
     model.properties[listname] = neighborlist
     chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
 end
@@ -141,7 +144,7 @@ end # function
 
 
 function surface_interaction!(x,y,i,j,d²,f,model;bodies=:bodies)
-    body = model.property[bodies][j]
+    body = model.properties[bodies][j]
     body.affect!(model[i], body, model)
     return f
 end # function
