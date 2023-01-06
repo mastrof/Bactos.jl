@@ -140,22 +140,25 @@ function update_neighborlist!(microbe::AbstractMicrobe, model::ABM;
 end # function
 
 
-function surface_interaction!(x,y,i,j,d²,f,model)
-    body = model.bodies[j]
+function surface_interaction!(x,y,i,j,d²,f,model;bodies=:bodies)
+    body = model.property[bodies][j]
     body.affect!(model[i], body, model)
     return f
 end # function
 
 """
-    surface_interaction!(model; listname=:neighborlist)
+    surface_interaction!(model; listname=:neighborlist, bodies=:bodies)
 Evaluate the effect of surface interactions between microbes and bodies
 using the neighborlist for efficient computation.
 Requires the neighborlist (initialised via `init_neighborlist`) to be set
-as a model property `model.properties[listname]`.
+as a model property `model.properties[listname]`,
+and a list of bodies with which interactions occur (`model.properties[bodies]`).
 """
-function surface_interaction!(model::ABM; listname::Symbol=:neighborlist)
+function surface_interaction!(model::ABM;
+    listname::Symbol=:neighborlist, bodies::Symbol=:bodies
+)
     map_pairwise!(
-        (x,y,i,j,d²,f) -> surface_interaction!(x,y,i,j,d²,f,model),
+        (x,y,i,j,d²,f) -> surface_interaction!(x,y,i,j,d²,f,model;bodies),
         model.properties[listname]
     )
     return nothing
