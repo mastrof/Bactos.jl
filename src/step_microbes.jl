@@ -1,4 +1,22 @@
-export microbe_step!, turnrate, affect!
+export simulate!, microbe_step!, turnrate, affect!
+
+# does not require microbe_step! and model.update! to be specified
+function Agents.run!(model::BBM,
+    n = 1;
+    when = true,
+    when_model = when,
+    adata = nothing,
+    mdata = nothing,
+    obtainer = identity,
+    agents_first = true,
+    showprogress = false,
+)
+    run!(model, microbe_step!, model.update!, n;
+        when, when_model,
+        adata, mdata,
+        obtainer, agents_first, showprogress
+    )
+end
 
 function microbe_step!(microbe::AbstractMicrobe{D}, model::ABM) where D
     dt = model.timestep # integration timestep

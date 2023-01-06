@@ -29,7 +29,6 @@ include("obstacles_spheres.jl")
 include("celllistmap.jl")
 
 # Stepping
-export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
 include("finite_differences.jl")

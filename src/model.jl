@@ -1,5 +1,14 @@
 export initialise_model, model_step!
 
+# convenience construct to dispatch on ABM with microbe agents
+BBM = ABM{
+    <:ContinuousSpace,
+    <:AbstractMicrobe,
+    <:Function,
+    <:AbstractDict,
+    <:AbstractRNG
+}
+
 """
     initialise_model(;
         microbes,
