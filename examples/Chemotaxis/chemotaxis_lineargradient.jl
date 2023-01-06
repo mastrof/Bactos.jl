@@ -36,8 +36,6 @@ timestep = 0.1 # s
 model_properties = Dict(
     :concentration_field => (pos,_) -> concentration_field(pos),
     :concentration_gradient => (pos,_) -> concentration_gradient(pos),
-    :concentration_time_derivative => (_,_) -> 0.0,
-    :compound_diffusivity => 500.0, # μm²/s
 )
 
 model = initialise_model(;
@@ -51,7 +49,7 @@ model = initialise_model(;
 #== RUN! ==#
 adata = [:pos]
 nsteps = 1000
-adf, = run!(model, microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 #== POST PROCESSING ==#
 traj = vectorize_adf_measurement(adf, :pos)
@@ -59,6 +57,7 @@ x = first.(traj)'
 y = last.(traj)'
 
 #== PLOTTING ==#
+#=
 lc = [typeof(m) <: Brumley ? 1 : 2 for m in microbes] |> permutedims
 
 for t in axes(x,1)[1:4:end]
@@ -83,3 +82,4 @@ for t in axes(x,1)[1:4:end]
     it = lpad(t, 4, '0')
     savefig("frame_$it.png")
 end
+=#

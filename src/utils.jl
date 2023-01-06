@@ -1,5 +1,7 @@
 export
-    rand_vel, rand_speed, vectorize_adf_measurement
+    rand_vel, rand_speed,
+    chain!, chain,
+    vectorize_adf_measurement
 
 """
     rand_vel([rng,] N)
@@ -40,6 +42,36 @@ Generate a random N-tuple, with norm defined by the speed distribution of `m`.
 """
 rand_vel(D::Int, m::AbstractMotility) = rand_vel(D) .* rand_speed(m)
 rand_vel(rng, D::Int, m::AbstractMotility) = rand_vel(rng, D) .* rand_speed(m)
+
+"""
+    chain!(model::ABM, gs)
+Chain a sequence of functions `gs` to the `model.update!` function.
+Each function in `gs` should only take `model` as argument, and 
+preferably return `nothing`.
+
+These functions will be applied in the specified order (left-to-right),
+*after* the `model.t` field has been increased.
+"""
+chain!(model::ABM, gs) = model.update! = chain(model.update!, gs)
+"""
+    chain(f::Function, gs)
+Chain function `f` to a collection of functions `gs`
+`f` and all the functions in `gs` must accept the same set of arguments.
+"""
+function chain(f::Function, gs)
+    js = eachindex(gs)
+    if length(js) > 1
+        return chain(f, chain(first(gs), gs[js[2:end]]))
+    else
+        return chain(f, first(gs))
+    end
+end
+"""
+    chain(f::Function, g::Function)
+Return a function that successively applies functions `f` and `g`.
+`f` and `g` must accept the same set of arguments.
+"""
+chain(f::Function, g::Function) = (a...;kw...) -> (f(a...;kw...); g(a...;kw...))
 
 """
     vectorize_adf_measurement(adf, sym)

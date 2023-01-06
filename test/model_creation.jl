@@ -27,7 +27,7 @@ using Test, Bactos, Random
     @test model.properties isa Dict{Symbol,Any}
     @test Set(keys(model.properties)) == Set(
         (:t, :timestep, :compound_diffusivity, :concentration_field,
-        :concentration_gradient, :concentration_time_derivative)
+        :concentration_gradient, :concentration_time_derivative, :update!)
     )
     @test model.timestep == timestep
     # the model should contain the agent `m`, not a copy
@@ -49,13 +49,6 @@ using Test, Bactos, Random
     # the new position should be inside of extent
     @test all(0 .≤ model.agents[1].pos .< extent)
 
-    # if extent is a tuple, orthorhombic domains can be created
-    model = initialise_model(;
-        microbes = [Microbe{3}(id=0)], timestep,
-        extent = (300.0,400.0,250.0)
-    )
-    @test model.space.extent == (300.0, 400.0, 250.0)
-
     # if extent is a scalar, the domain is cubic;
     # if extent is a tuple, the domain can be orthorhombic;
     # if extent has different size from microbe dimensionality,
@@ -65,9 +58,9 @@ using Test, Bactos, Random
         extent,
         timestep
     )
-    @test_throws ErrorException my_init((1.0,))
-    @test_throws ErrorException my_init((1.0, 1.0))
-    @test_throws ErrorException my_init((1.0, 1.0, 1.0, 1.0))
+    @test_throws ArgumentError my_init((1.0,))
+    @test_throws ArgumentError my_init((1.0, 1.0))
+    @test_throws ArgumentError my_init((1.0, 1.0, 1.0, 1.0))
     model1 = my_init(1.0)
     model2 = my_init((1.0, 2.0, 3.0))
     @test model1.space.extent == (1.0, 1.0, 1.0)
@@ -103,13 +96,19 @@ using Test, Bactos, Random
 
         model = initialise_model(;
             microbes, timestep, extent,
-            model_properties = Dict(:integrator => integrator)
         )
-        @test model.integrator === integrator
-        # advance ode for n steps of size timestep
+        add_diffeq!(model, my_ode_step!, u₀, p)
+        # add_diffeq! adds an integrator to model properties
+        @test haskey(model.properties, :integrator)
+        # advance ode for n steps of length timestep
         n = 5
-        run!(model, microbe_step!, model_step!, n)
-        @test model.integrator === integrator
-        @test integrator.u[1] ≈ p[1] * timestep * n
+        run!(model, microbe_step!, model.update!, n)
+        @test model.integrator.u[1] ≈ p[1] * timestep * n
+        # if we use model_step! instead of model.update!, ode is not integrated
+        run!(model, microbe_step!, model_step!, 15)
+        @test model.integrator.u[1] ≈ p[1] * timestep * n
+        # model.update! now contains diffeq_step!
+        diffeq_step!(model) # one step
+        @test model.integrator.u[1] ≈ p[1] * timestep * (n+1)
     end
 end

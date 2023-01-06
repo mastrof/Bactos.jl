@@ -45,9 +45,6 @@ function odestep!(du, u, p, t)
 end # function
 
 nsteps = round(Int, 500 / timestep)
-ode_integrator = initialise_ode(odestep!, u₀, (β, D, 1/spacing);
-                                dtmax = spacing^2/2D,
-                                saveat = (0:nsteps) .* timestep)
 
 function concentration_field(pos,model)
     pos_idx = get_spatial_index(pos, model.xmesh, model)
@@ -74,29 +71,30 @@ model_properties = Dict(
 model = initialise_model(;
     microbes, timestep,
     extent, spacing, periodic = false,
-    ode_integrator,
     model_properties
+)
+add_diffeq!(model, odestep!, u₀, (β, D, 1/spacing);
+    dtmax = spacing^2/2D, saveat = (0:nsteps) .* timestep
 )
 
 @info "initialised model"
 
-adata = [:pos, :state]
+adata = [:pos]
 u_field(model) = copy(model.integrator.u)
 mdata = [u_field]
 when = range(0, nsteps; step=round(Int, 5/timestep))
 when_model = range(0, nsteps; step=round(Int, 30/timestep))
 
-function update_model!(model)
+# add extra functionalities to model stepping function
+chain!(model, (
     # update gradient
-    finitediff!(model.∇u, model.integrator.u, 1/model.space.spacing)
-    # update time derivative 
-    get_du!(model.∂ₜu, model.integrator)
-end # function
-
-my_model_step!(model) = model_step!(model; update_model!)
+    (mdl) -> finitediff!(mdl.∇u, mdl.integrator.u, 1/mdl.space.spacing),
+    # update time derivative
+    (mdl) -> get_du!(mdl.∂ₜu, mdl.integrator)
+))
 
 adf, mdf = run!(
-    model, microbe_step!, my_model_step!, nsteps;
+    model, nsteps;
     adata, mdata, when, when_model
 )
 

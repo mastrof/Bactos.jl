@@ -1,11 +1,24 @@
-export
-    microbe_step!
+export run!, microbe_step!, turnrate, affect!
 
-function microbe_step!(
-    microbe::AbstractMicrobe, model::ABM;
-    affect! = (microbe, model) -> nothing,
-    turnrate = (microbe, model) -> microbe.turn_rate,
+# does not require microbe_step! and model.update! to be specified
+function Agents.run!(model::BBM,
+    n = 1;
+    when = true,
+    when_model = when,
+    adata = nothing,
+    mdata = nothing,
+    obtainer = identity,
+    agents_first = true,
+    showprogress = false,
 )
+    run!(model, microbe_step!, model.update!, n;
+        when, when_model,
+        adata, mdata,
+        obtainer, agents_first, showprogress
+    )
+end
+
+function microbe_step!(microbe::AbstractMicrobe{D}, model::ABM) where D
     dt = model.timestep # integration timestep
     # update microbe position
     if haskey(model.properties, :pathfinder)
@@ -25,9 +38,5 @@ function microbe_step!(
     return nothing
 end # function
 
-function pathfinder_step!(microbe::AbstractMicrobe, model::ABM, dt::Real)
-    target_position = microbe.pos .+ microbe.vel .* dt
-    U = norm(microbe.vel)
-    plan_route!(microbe, target_position, model.pathfinder)
-    move_along_route!(microbe, model, model.pathfinder, U, dt)
-end
+turnrate(microbe::AbstractMicrobe, model) = microbe.turn_rate
+affect!(microbe::AbstractMicrobe, model) = nothing

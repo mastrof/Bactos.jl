@@ -30,7 +30,7 @@ models = [
 
 nsteps = round(Int, 100τ_run / dt)
 adata = [:pos]
-adfs = [run!(model, microbe_step!, nsteps; adata)[1] for model in models]
+adfs = [run!(model, nsteps; adata)[1] for model in models]
 
 MSD = hcat(msd.(adfs; L=L)...)
 

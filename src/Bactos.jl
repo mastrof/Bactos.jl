@@ -21,16 +21,16 @@ include("utils.jl")
 
 # ABM setup
 include("model.jl")
+include("diffeq.jl")
+include("pathfinder.jl")
 
 # Bodies & neighbor lists
 include("obstacles_spheres.jl")
 include("celllistmap.jl")
 
 # Stepping
-export run! # from Agents
 include("rotations.jl")
 include("step_microbes.jl")
-include("step_model.jl")
 include("finite_differences.jl")
 
 # Chemotaxis models

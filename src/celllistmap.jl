@@ -1,6 +1,27 @@
 export
-    init_neighborlist, update_neighborlist!,
+    add_neighborlist!, init_neighborlist, update_neighborlist!,
     surface_interaction!
+
+
+isperiodic(model::ABM) = isperiodic(model.space)
+isperiodic(space::ContinuousSpace{D,P,T,A}) where {D,P,T,A,} = P
+
+function add_neighborlist!(model::ABM,
+    x::AbstractVector, cutoff::Real;
+    listname::Symbol = :neighborlist, x_or_y::Char = 'x'
+)
+    neighborlist = init_neighborlist(x, model.space.extent, cutoff, isperiodic(model))
+    model.properties[listname] = neighborlist
+    chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
+end
+function add_neighborlist!(model::ABM,
+    x::AbstractVector, y::AbstractVector, cutoff::Real;
+    listname::Symbol = :neighborlist, x_or_y::Char = 'x'
+)
+    neighborlist = init_neighborlist(x, y, model.space.extent, cutoff, isperiodic(model))
+    model.properties[listname] = neighborlist
+    chain!(model, m::ABM -> update_neighborlist!(m; listname, x_or_y))
+end
 
 """
 init_neighborlist(
@@ -122,22 +143,25 @@ function update_neighborlist!(microbe::AbstractMicrobe, model::ABM;
 end # function
 
 
-function surface_interaction!(x,y,i,j,d²,f,model)
-    body = model.bodies[j]
+function surface_interaction!(x,y,i,j,d²,f,model;bodies=:bodies)
+    body = model.properties[bodies][j]
     body.affect!(model[i], body, model)
     return f
 end # function
 
 """
-    surface_interaction!(model; listname=:neighborlist)
+    surface_interaction!(model; listname=:neighborlist, bodies=:bodies)
 Evaluate the effect of surface interactions between microbes and bodies
 using the neighborlist for efficient computation.
 Requires the neighborlist (initialised via `init_neighborlist`) to be set
-as a model property `model.properties[listname]`.
+as a model property `model.properties[listname]`,
+and a list of bodies with which interactions occur (`model.properties[bodies]`).
 """
-function surface_interaction!(model::ABM; listname::Symbol=:neighborlist)
+function surface_interaction!(model::ABM;
+    listname::Symbol=:neighborlist, bodies::Symbol=:bodies
+)
     map_pairwise!(
-        (x,y,i,j,d²,f) -> surface_interaction!(x,y,i,j,d²,f,model),
+        (x,y,i,j,d²,f) -> surface_interaction!(x,y,i,j,d²,f,model;bodies),
         model.properties[listname]
     )
     return nothing

@@ -27,7 +27,7 @@ model = initialise_model(;
 
 nsteps = 1000
 adata = [:pos]
-adf, = run!(model, microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 x = first.(vectorize_adf_measurement(adf, :pos))'
 x₀ = x[1:1,:]

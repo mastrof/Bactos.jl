@@ -1,6 +1,4 @@
-export
-    AbstractCelani, Celani, CelaniNoisy,
-    celani_affect!, celani_turnrate, microbe_step!
+export AbstractCelani, Celani, CelaniNoisy
 
 abstract type AbstractCelani{D} <: AbstractMicrobe{D} end
 
@@ -62,7 +60,7 @@ Base.@kwdef mutable struct CelaniNoisy{D} <: AbstractCelani{D}
     radius::Float64 = 0.5 # μm
 end # struct
 
-function celani_affect!(microbe::Celani, model)
+function affect!(microbe::Celani, model)
     Δt = model.timestep
     u = model.concentration_field(microbe.pos, model)
     γ = microbe.memory
@@ -76,7 +74,7 @@ function celani_affect!(microbe::Celani, model)
     return nothing
 end # function
 
-function celani_affect!(microbe::CelaniNoisy, model)
+function affect!(microbe::CelaniNoisy, model)
     Δt = model.timestep
     Dc = model.compound_diffusivity
     u = model.concentration_field(microbe.pos, model)
@@ -95,16 +93,8 @@ function celani_affect!(microbe::CelaniNoisy, model)
     return nothing
 end # function
 
-function celani_turnrate(microbe, model)
+function turnrate(microbe::AbstractCelani, model)
     ν₀ = microbe.turn_rate # unbiased
     S = microbe.state[4]
     return ν₀*S # modulated turn rate
-end # function
-
-function microbe_step!(microbe::AbstractCelani, model::ABM)
-    microbe_step!(
-        microbe, model;
-        affect! = celani_affect!,
-        turnrate = celani_turnrate
-    )
 end # function

@@ -1,7 +1,7 @@
 using Bactos
 using Plots
 
-L = 50.0
+L = 1000.0
 τ_run = 1.0
 ω = 1 / τ_run
 nmicrobes = 6
@@ -21,7 +21,7 @@ model = initialise_model(;
 
 nsteps = 200
 adata = [:pos]
-adf, = run!(model, microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 trajectories = vectorize_adf_measurement(adf, :pos)
 x = first.(trajectories)

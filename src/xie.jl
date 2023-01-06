@@ -1,4 +1,4 @@
-export AbstractXie, Xie, XieNoisy, xie_affect!, xie_turnrate
+export AbstractXie, Xie, XieNoisy
 
 abstract type AbstractXie{D} <: AbstractMicrobe{D} end
 
@@ -41,7 +41,7 @@ Base.@kwdef mutable struct XieNoisy{D} <: AbstractXie{D}
     radius::Float64 = 0.5 # μm
 end
 
-function xie_affect!(microbe::Xie, model)
+function affect!(microbe::Xie, model)
     Δt = model.timestep
     c = model.concentration_field(microbe.pos, model)
     K = microbe.binding_affinity
@@ -59,7 +59,7 @@ function xie_affect!(microbe::Xie, model)
     return nothing
 end
 
-function xie_affect!(microbe::XieNoisy, model; ε=1e-16)
+function affect!(microbe::XieNoisy, model; ε=1e-16)
     Δt = model.timestep
     Dc = model.compound_diffusivity
     c = model.concentration_field(microbe.pos, model)
@@ -82,7 +82,7 @@ function xie_affect!(microbe::XieNoisy, model; ε=1e-16)
     return nothing
 end
 
-function xie_turnrate(microbe, model)
+function turnrate(microbe::AbstractXie, model)
     if microbe.motility isa AbstractMotilityTwoStep
         return xie_turnrate_twostep(microbe, model)
     else
@@ -105,12 +105,4 @@ function xie_turnrate_twostep(microbe, model)
         β = microbe.gain_backward
     end
     return ν₀*(1 + β*S)
-end
-
-function microbe_step!(microbe::AbstractXie, model::ABM)
-    microbe_step!(
-        microbe, model;
-        affect! = xie_affect!,
-        turnrate = xie_turnrate
-    )
 end

@@ -1,5 +1,13 @@
-export
-    initialise_model, initialise_ode, initialise_pathfinder
+export initialise_model, model_step!
+
+# convenience construct to dispatch on ABM with microbe agents
+BBM = ABM{
+    <:ContinuousSpace,
+    <:AbstractMicrobe,
+    <:Function,
+    <:AbstractDict,
+    <:AbstractRNG
+}
 
 """
     initialise_model(;
@@ -8,6 +16,7 @@ export
         extent, spacing = extent/20, periodic = true,
         random_positions = true,
         model_properties = Dict(),
+        kwargs...
     )
 Initialise an `AgentBasedModel` from population `microbes`.
 Requires the integration `timestep` and the `extent` of the simulation box.
@@ -16,8 +25,10 @@ When `random_positions = true` the positions assigned to `microbes` are
 ignored and new ones, extracted randomly in the simulation box, are assigned;
 if `random_positions = false` the original positions in `microbes` are kept.
 
-Any extra property can be assigned to the model via the `model_properties`
-dictionary.
+Extra properties can be assigned to the model via the `model_properties` dictionary.
+
+Further kwargs will be sent through to the `AgentBasedModel` constructor from
+Agents.jl, so that all its functionalities can be accessed.
 """
 function initialise_model(;
     microbes,
@@ -25,13 +36,16 @@ function initialise_model(;
     extent, spacing = minimum(extent)/20, periodic = true,
     random_positions = true,
     model_properties = Dict(),
+    kwargs...
 )
     space_dim = length(microbes[1].pos)
     if typeof(extent) <: Real
         domain = Tuple(fill(extent, space_dim))
     else
         if length(extent) ≠ space_dim
-            error("Space extent and microbes must have the same dimensionality.")
+            throw(ArgumentError(
+                "Space extent and microbes must have the same dimensionality."
+            ))
         end # if
         domain = extent
     end # if
@@ -43,14 +57,11 @@ function initialise_model(;
         :concentration_field => (pos,model) -> 0.0,
         :concentration_gradient => (pos,model) -> zero.(pos),
         :concentration_time_derivative => (pos,model) -> 0.0,
+        :update! => model_step!,
         model_properties...
     )
 
-    space = ContinuousSpace(
-        domain,
-        spacing = spacing,
-        periodic = periodic
-    )
+    space = ContinuousSpace(domain; spacing, periodic)
 
     # falls back to eltype(microbes) if there is a single microbe type,
     # builds a Union type if eltype(microbes) is abstract
@@ -60,6 +71,8 @@ function initialise_model(;
         MicrobeType, space;
         properties,
         scheduler = Schedulers.fastest,
+        warn = false,
+        kwargs...
     )
 
     for microbe in microbes
@@ -73,31 +86,24 @@ function initialise_model(;
     return model
 end # function
 
+
 """
-    initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
-Initialise an OrdinaryDiffEq integrator, using the in-place stepping algorithm
-`ode_step!`, initial conditions `u₀` and parameters `p`.
-Default integration algorithm is `Tsit5` (others can be accessed by importing
-OrdinaryDiffEq).
-Any extra parameter can be passed over to the integrator via kwargs.
+    model_step!(model::ABM)
+Model stepping function, stored in `model.update!`.
+By default, it only increases the time count of `model` (`model.t += 1`).
+
+Extra functionalities can be added to the basic `model_step!` through
+function chaining e.g. `chain!(model, (f₁!, f₂!, f₃!))`.
+
+Some add-ons of general utility are already provided by Bactos.jl
+(see respective documentations for more details):
+* `diff_step!`: used to integrate differential equations if `model` has an
+    `integrator` property (`model.integrator`)
+* `update_neighborlist!`: update the microbe positions in a neighborlist
+* `surface_interaction!`: used to evaluate the effect of interactions between
+    microbes and other surfaces
 """
-function initialise_ode(ode_step!, u₀, p; alg=Tsit5(), kwargs...)
-    prob = ODEProblem(ode_step!, u₀, (0.0, Inf), p)
-    integrator = init(prob, alg; kwargs...)
-    return integrator
+function model_step!(model::ABM)
+    model.t += 1
+    return nothing
 end # function
-
-
-function initialise_pathfinder(
-    extent::Real, periodic::Bool,
-    walkmap::BitArray{D}
-) where D
-    initialise_pathfinder(ntuple(_->extent,D), periodic, walkmap)
-end
-function initialise_pathfinder(
-    extent::NTuple{D,<:Real}, periodic::Bool,
-    walkmap::BitArray{D}
-) where D
-    space = ContinuousSpace(extent; periodic)
-    AStar(space; walkmap)
-end
