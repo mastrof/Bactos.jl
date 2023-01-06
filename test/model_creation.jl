@@ -27,7 +27,7 @@ using Test, Bactos, Random
     @test model.properties isa Dict{Symbol,Any}
     @test Set(keys(model.properties)) == Set(
         (:t, :timestep, :compound_diffusivity, :concentration_field,
-        :concentration_gradient, :concentration_time_derivative)
+        :concentration_gradient, :concentration_time_derivative, :update!)
     )
     @test model.timestep == timestep
     # the model should contain the agent `m`, not a copy
@@ -58,9 +58,9 @@ using Test, Bactos, Random
         extent,
         timestep
     )
-    @test_throws ErrorException my_init((1.0,))
-    @test_throws ErrorException my_init((1.0, 1.0))
-    @test_throws ErrorException my_init((1.0, 1.0, 1.0, 1.0))
+    @test_throws ArgumentError my_init((1.0,))
+    @test_throws ArgumentError my_init((1.0, 1.0))
+    @test_throws ArgumentError my_init((1.0, 1.0, 1.0, 1.0))
     model1 = my_init(1.0)
     model2 = my_init((1.0, 2.0, 3.0))
     @test model1.space.extent == (1.0, 1.0, 1.0)
