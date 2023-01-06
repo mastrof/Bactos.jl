@@ -40,7 +40,7 @@ model = initialise_model(;
 
 nsteps = round(Int, 100τ_run / Δt)
 adata = [:vel]
-adf, = run!(model, microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 adf_runtumble = filter(:id => id -> model.agents[id].motility isa RunTumble, adf; view=true)
 adf_runrev = filter(:id => id -> model.agents[id].motility isa RunReverse, adf; view=true)

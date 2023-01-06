@@ -94,7 +94,7 @@ chain!(model, (
 ))
 
 adf, mdf = run!(
-    model, microbe_step!, model.update!, nsteps;
+    model, nsteps;
     adata, mdata, when, when_model
 )
 

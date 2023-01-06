@@ -29,8 +29,6 @@ bodies = [
     ObstacleSphere(pos, r) for (r,pos) in zip(bodyrad,bodypos)
 ]
 
-pathfinder = initialise_pathfinder(extent, periodic, 0.5, bodies)
-
 # Initialise microbes at x=0
 microbes = [Celani{2}(
     id=i, pos=(0,rand()*extent[2])) for i in 1:n_microbes
@@ -62,16 +60,16 @@ model_properties = Dict(
     :cfield_params => (C₀, C₁),
     :concentration_field => concentration_field,
     :concentration_gradient => concentration_gradient,
-    :pathfinder => pathfinder
 )
 
 model = initialise_model(;
     microbes, timestep, extent, periodic, model_properties,
     random_positions = false
 )
+add_pathfinder!(model, 0.5, bodies)
 
 adata = [:pos]
-@time adf, = run!(model, microbe_step!, model_step!, 8000; adata)
+@time adf, = run!(model, 8000; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
 x = first.(traj)'

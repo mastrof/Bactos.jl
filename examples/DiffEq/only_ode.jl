@@ -49,7 +49,7 @@ u_field(model) = copy(model.integrator.u)
 mdata = [u_field]
 nsteps = round(Int, 600 / timestep)
 when_model = range(0, nsteps; step=round(Int, 30/timestep))
-_, mdf = run!(model, microbe_step!, model.update!, nsteps; mdata, when_model)
+_, mdf = run!(model, nsteps; mdata, when_model)
 
 linecolors = palette(:plasma, size(mdf,1))
 plot(color_palette = linecolors)

@@ -11,24 +11,24 @@ n = 1
 
 m_rt = [
     Microbe{2}(
-        id=i, vel=rand_vel(2).*U, turn_rate=ω,
-        motility=RunTumble(speed=Degenerate(U)),
+        id=i, turn_rate=ω,
+        motility=RunTumble(speed=[U]),
         rotational_diffusivity=D_rot
     ) for i in 1:n
 ]
 
 m_rr = [
     Microbe{2}(
-        id=n+i, vel=rand_vel(2).*U, turn_rate=ω,
-        motility=RunReverse(speed=Degenerate(U)),
+        id=n+i, turn_rate=ω,
+        motility=RunReverse(speed_forward=[U]),
         rotational_diffusivity=D_rot
     ) for i in 1:n
 ]
 
 m_rrf = [
     Microbe{2}(
-        id=2n+i, vel=rand_vel(2).*U, turn_rate=ω,
-        motility=RunReverseFlick(speed=Degenerate(U)),
+        id=2n+i, turn_rate=ω,
+        motility=RunReverseFlick(speed_forward=[U]),
         rotational_diffusivity=D_rot
     ) for i in 1:n
 ]
@@ -44,7 +44,7 @@ model = initialise_model(;
 
 nsteps = 500
 adata = [:pos]
-adf, = run!(model, microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 trajectories = vectorize_adf_measurement(adf, :pos)
 x = first.(trajectories)

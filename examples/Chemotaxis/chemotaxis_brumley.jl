@@ -27,7 +27,6 @@ model_properties = Dict(
     :concentration_field => (pos,_) -> concentration_field(pos),
     :concentration_gradient => (pos,_) -> concentration_gradient(pos),
     :concentration_time_derivative => (_,_) -> 0.0,
-    :compound_diffusivity => 500.0, # μm²/s
 )
 
 model = initialise_model(;
@@ -37,15 +36,9 @@ model = initialise_model(;
     model_properties = model_properties
 )
 
-my_microbe_step!(microbe, model) = microbe_step!(
-    microbe, model;
-    affect! = brumley_affect!,
-    turnrate = brumley_turnrate
-)
-
 adata = [:pos]
 nsteps = 1000
-adf, = run!(model, my_microbe_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
 x = first.(traj)'

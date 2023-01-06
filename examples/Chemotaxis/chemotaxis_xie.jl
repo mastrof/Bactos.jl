@@ -47,10 +47,10 @@ model = initialise_model(;
     extent, model_properties
 )
 
-β(a) = a.motility.state == Forward ? a.gain_forward : a.gain_backward
-state(a::AbstractXie) = max(1 + β(a)*a.state, 0)
+_β(a) = a.motility.state == Forward ? a.gain_forward : a.gain_backward
+state(a::AbstractXie) = max(1 + _β(a)*a.state, 0)
 adata = [state, :state_m, :state_z]
-adf, = run!(model, microbe_step!, model_step!, nsteps; adata)
+adf, = run!(model, nsteps; adata)
 S = vectorize_adf_measurement(adf, :state)'
 m = (vectorize_adf_measurement(adf, :state_m)')[:,1] # take only fw
 z = (vectorize_adf_measurement(adf, :state_z)')[:,1] # take only fw

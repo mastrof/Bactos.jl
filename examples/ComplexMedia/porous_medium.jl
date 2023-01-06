@@ -51,14 +51,7 @@ for m in microbes
     end # while
 end # for
 
-# Initialise neighbor list
-cutoff_radius = 2 * (max_radius + microbe_radius + U*timestep)
-neighborlist = init_neighborlist(microbes, bodies, extent, cutoff_radius, periodic)
-
 model_properties = Dict(
-    :t => 0,
-    :bodies => bodies,
-    :neighborlist => neighborlist,
     :cfield_params => (C₀, C₁),
     :concentration_field => concentration_field,
     :concentration_gradient => concentration_gradient
@@ -68,20 +61,16 @@ model = initialise_model(;
     microbes, timestep, extent, periodic, model_properties,
     random_positions = false
 )
-
-function update_model!(model)
-    model.t += 1
-    if model.t % 10 == 0
-        update_neighborlist!(model)
-    end
-    surface_interaction!(model)
-end # function
-
-my_model_step!(model) = model_step!(model; update_model!)
+# neighbor list
+cutoff_radius = 2 * (max_radius + microbe_radius + U*timestep)
+add_neighborlist!(model, microbes, bodies, cutoff_radius)
+# surface interactions
+model.properties[:bodies] = bodies
+chain!(model, surface_interaction!)
 
 
 adata = [:pos]
-adf, = run!(model, microbe_step!, my_model_step!, 2000; adata)
+adf, = run!(model, 2000; adata)
 
 traj = vectorize_adf_measurement(adf, :pos)
 x = first.(traj)'
