@@ -1,11 +1,6 @@
-export
-    microbe_step!
+export microbe_step!, turnrate, affect!
 
-function microbe_step!(
-    microbe::AbstractMicrobe, model::ABM;
-    affect! = (microbe, model) -> nothing,
-    turnrate = (microbe, model) -> microbe.turn_rate,
-)
+function microbe_step!(microbe::AbstractMicrobe{D}, model::ABM) where D
     dt = model.timestep # integration timestep
     # update microbe position
     if haskey(model.properties, :pathfinder)
@@ -24,3 +19,6 @@ function microbe_step!(
     end # if
     return nothing
 end # function
+
+turnrate(microbe::AbstractMicrobe, model) = microbe.turn_rate
+affect!(microbe::AbstractMicrobe, model) = nothing

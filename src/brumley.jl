@@ -1,4 +1,4 @@
-export Brumley, brumley_affect!, brumley_turnrate
+export Brumley
 
 
 """
@@ -32,7 +32,7 @@ Base.@kwdef mutable struct Brumley{D} <: AbstractMicrobe{D}
     radius::Float64 = 0.5 # μm
 end # struct
 
-function brumley_affect!(microbe, model)
+function affect!(microbe::Brumley, model)
     Δt = model.timestep
     Dc = model.compound_diffusivity
     τₘ = microbe.adaptation_time
@@ -53,17 +53,9 @@ function brumley_affect!(microbe, model)
     return nothing
 end # function
 
-function brumley_turnrate(microbe, model)
+function turnrate(microbe::Brumley, model)
     ν₀ = microbe.turn_rate # unbiased
     Γ = microbe.motor_gain
     S = microbe.state
     return (1 + exp(-Γ*S)) * ν₀/2 # modulated turn rate
-end # function
-
-function microbe_step!(microbe::Brumley, model::ABM)
-    microbe_step!(
-        microbe, model;
-        affect! = brumley_affect!,
-        turnrate = brumley_turnrate
-    )
 end # function

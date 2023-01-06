@@ -1,4 +1,4 @@
-export BrownBerg, brownberg_affect!, brownberg_turnrate, microbe_step!
+export BrownBerg
 
 
 """
@@ -28,7 +28,7 @@ Base.@kwdef mutable struct BrownBerg{D} <: AbstractMicrobe{D}
     radius::Float64 = 0.0 # μm
 end # struct
 
-function brownberg_affect!(microbe, model)
+function affect!(microbe::BrownBerg, model)
     Δt = model.timestep
     τₘ = microbe.adaptation_time
     β = Δt / τₘ # memory loss factor
@@ -43,17 +43,9 @@ function brownberg_affect!(microbe, model)
     return nothing
 end # function
 
-function brownberg_turnrate(microbe, model)
+function turnrate(microbe::BrownBerg, model)
     ν₀ = microbe.turn_rate # unbiased
     g = microbe.motor_gain
     S = microbe.state
     return ν₀*exp(-g*S) # modulated turn rate
-end # function
-
-function microbe_step!(microbe::BrownBerg, model::ABM)
-    microbe_step!(
-        microbe, model;
-        affect! = brownberg_affect!,
-        turnrate = brownberg_turnrate
-    )
 end # function
