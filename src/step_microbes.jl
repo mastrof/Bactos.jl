@@ -1,4 +1,4 @@
-export simulate!, microbe_step!, turnrate, affect!
+export run!, microbe_step!, turnrate, affect!
 
 # does not require microbe_step! and model.update! to be specified
 function Agents.run!(model::BBM,
