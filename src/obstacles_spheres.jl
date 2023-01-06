@@ -27,9 +27,9 @@ ObstacleSphere(pos::NTuple{D,<:Real}, radius::Real,
 
 
 function add_pathfinder!(model::ABM,
-    r::Real, spheres::AbstractVector{ObstacleSphere};
+    r::Real, spheres::AbstractVector{ObstacleSphere{D}};
     Δ::Real=r/2
-)
+) where D
     walkmap = get_walkmap(model.space.extent, r, spheres; Δ)
     add_pathfinder!(model, walkmap)
 end
