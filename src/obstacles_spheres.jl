@@ -49,25 +49,17 @@ function get_walkmap(
 )::BitArray{D} where D
     mesh = ntuple(i -> 0:Δ:extent[i], D)
     itr = Iterators.product(mesh...)
-    return BitArray([is_walkable(pos, r, spheres) for pos in itr])
+    return BitArray([~is_inside(pos, r, spheres) for pos in itr])
 end
-function is_walkable(
-    pos::NTuple{D,<:Real}, r::Real,
-    spheres::AbstractVector{ObstacleSphere{D}}
-)::Bool where D
-    for sphere in spheres
-        if !is_walkable(pos, r, sphere)
-            return false
-        end
-    end
-    return true
+
+function is_inside(microbe::AbstractMicrobe, spheres::AbstractVector{<:ObstacleSphere})
+    any(Iterators.map(s -> is_inside(microbe, s), spheres))
 end
-function is_walkable(
-    pos::NTuple{D,<:Real}, r::Real,
-    sphere::ObstacleSphere{D}
-)::Bool where D
-    norm(pos .- sphere.pos) ≥ r + sphere.radius
+is_inside(m::AbstractMicrobe, s::ObstacleSphere) = is_inside(m.pos, m.radius, s)
+function is_inside(pos::NTuple, r::Real, spheres::AbstractVector{<:ObstacleSphere})
+    any(Iterators.map(s -> is_inside(pos, r, s), spheres))
 end
+is_inside(pos::NTuple, r::Real, s::ObstacleSphere) = norm(pos .- s.pos) < r + s.radius
 
 
 """
