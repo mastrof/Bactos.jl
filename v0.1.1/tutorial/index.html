@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · Bactos.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Bactos.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Creating-a-bacterium"><span>Creating a bacterium</span></a></li><li><a class="tocitem" href="#Creating-a-model"><span>Creating a model</span></a></li><li><a class="tocitem" href="#Random-walks"><span>Random walks</span></a></li><li><a class="tocitem" href="#Chemotaxis-in-a-linear-gradient"><span>Chemotaxis in a linear gradient</span></a></li></ul></li><li><a class="tocitem" href="../checks/">Validation</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/mastrof/Bactos.jl/blob/main/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><p>Ready-to-run scripts for the functionalities introduced here can be found in the <code>examples</code> directory of the <a href="https://github.com/mastrof/Bactos.jl">repo</a>.</p><h2 id="Creating-a-bacterium"><a class="docs-heading-anchor" href="#Creating-a-bacterium">Creating a bacterium</a><a id="Creating-a-bacterium-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-a-bacterium" title="Permalink"></a></h2><p>Bacteria are represented by custom types, that must be subtypes of the <code>AbstractAgent</code> type implemented by Agents.jl.</p><article class="docstring"><header><a class="docstring-binding" id="Bactos.AbstractMicrobe" href="#Bactos.AbstractMicrobe"><code>Bactos.AbstractMicrobe</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">AbstractMicrobe{D} &lt;: AbstractAgent where {D&lt;:Integer}
+YourMicrobeType{D} &lt;: AbstractMicrobe{D}</code></pre><p>All microbe types in Bactos.jl simulations must be instances of user-defined types that are subtypes of <code>AbstractMicrobe</code>. The parameter <code>D</code> defines the dimensionality of the space in which the microbe type lives (1, 2 and 3 are currently supported).</p><p>All microbe types should have the following fields: <code>- id::Int</code> → id of the microbe <code>- pos::NTuple{D,Float64}</code> → position of the microbe <code>- vel::NTuple{D,Float64}</code> → velocity of the microbe <code>- motility</code> → motile pattern of the microbe <code>- turn_rate::Float64</code> → average reorientation rate of the microbe <code>- rotational_diffusivity::Float64</code> → rotational diffusion coefficient</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/mastrof/Bactos.jl/blob/c2927e4acb695c645b7179eaf548772928592045/src/microbes.jl#L3-L18">source</a></section></article><p>By default, <code>Bactos.jl</code> provides a basic <code>Microbe</code> type, that is usually sufficient for the simplest types of simulations.</p><article class="docstring"><header><a class="docstring-binding" id="Bactos.Microbe" href="#Bactos.Microbe"><code>Bactos.Microbe</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Microbe{D} &lt;: AbstractMicrobe{D}</code></pre><p>Basic microbe type for simple simulations.</p><p>Default parameters:</p><ul><li><code>id::Int</code> → identifier used internally by Agents.jl</li><li><code>pos::NTuple{D,Float64} = ntuple(zero,D)</code> → position</li><li><code>motility = RunTumble()</code> → motile pattern</li><li><code>vel::NTuple{D,Float64} = rand_vel(D) .* rand(motility.speed)</code> → velocity vector</li><li><code>turn_rate::Float64 = 1.0</code> → frequency of reorientations</li><li><code>state::Float64</code> → generic variable for a scalar internal state</li><li><code>rotational_diffusivity::Float64 = 0.0</code> → rotational diffusion coefficient</li><li><code>radius::Float64 = 0.0</code> → equivalent spherical radius of the microbe</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/mastrof/Bactos.jl/blob/c2927e4acb695c645b7179eaf548772928592045/src/microbes.jl#L22-L35">source</a></section></article><p>In order to create a <code>Microbe</code> living in a one-dimensional space we can just call</p><pre><code class="language-julia hljs">Microbe{1}(id=0)</code></pre><p>It is <em>required</em> to pass a value to the <code>id</code> argument (this behavior might change in the future). All the other parameters will be given default values (as described in the type docstring) if not assigned explicitly.</p><p>Similarly, for bacteria living in two or three dimensions we can use</p><pre><code class="language-julia hljs">Microbe{2}(id=0)
+Microbe{3}(id=0)</code></pre><p>Custom parameters can be set via kwargs:</p><pre><code class="language-julia hljs">Microbe{3}(
+    id = 0,
+    pos = (300.0, 0.0, 0.0),
+    motility = RunTumble(speed = Normal(40.0, 4.0)),
+    vel = rand_vel(3) .* 40.0,
+    turn_rate = 1.5,
+    state = 0.0,
+    rotational_diffusivity = 0.035,
+    radius = 0.5
+)</code></pre><h2 id="Creating-a-model"><a class="docs-heading-anchor" href="#Creating-a-model">Creating a model</a><a id="Creating-a-model-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-a-model" title="Permalink"></a></h2><p>BacteriaBasedModel provides a fast way to initialise an <code>AgentBasedModel</code> (from Agents.jl) via the <code>initialise_model</code> function, using a typical procedure. If higher levels of customization are needed, the model will need to be created by hand.</p><article class="docstring"><header><a class="docstring-binding" id="Bactos.initialise_model" href="#Bactos.initialise_model"><code>Bactos.initialise_model</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">initialise_model(;
+    microbes,
+    timestep,
+    extent, spacing = extent/20, periodic = true,
+    random_positions = true,
+    model_properties = Dict(),
+    kwargs...
+)</code></pre><p>Initialise an <code>AgentBasedModel</code> from population <code>microbes</code>. Requires the integration <code>timestep</code> and the <code>extent</code> of the simulation box.</p><p>When <code>random_positions = true</code> the positions assigned to <code>microbes</code> are ignored and new ones, extracted randomly in the simulation box, are assigned; if <code>random_positions = false</code> the original positions in <code>microbes</code> are kept.</p><p>Extra properties can be assigned to the model via the <code>model_properties</code> dictionary.</p><p>Further kwargs will be sent through to the <code>AgentBasedModel</code> constructor from Agents.jl, so that all its functionalities can be accessed.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/mastrof/Bactos.jl/blob/c2927e4acb695c645b7179eaf548772928592045/src/model.jl#L12-L32">source</a></section></article><p>We can now generate a population of microbes and, after choosing an integration timestep and a domain size, we initialise our model, placing the microbes at random locations in the domain.</p><pre><code class="language-julia hljs">microbes = [Microbe{3}(id=i) for i in 1:10]
+timestep = 0.1
+extent = 100.0
+model = initialise_model(;
+    microbes = microbes,
+    timestep = timestep,
+    extent = extent
+)</code></pre><pre><code class="nohighlight hljs">AgentBasedModel with 10 agents of type Microbe
+ space: periodic continuous space with (100.0, 100.0, 100.0) extent and spacing=5.0
+ scheduler: fastest
+ properties: timestep</code></pre><h2 id="Random-walks"><a class="docs-heading-anchor" href="#Random-walks">Random walks</a><a id="Random-walks-1"></a><a class="docs-heading-anchor-permalink" href="#Random-walks" title="Permalink"></a></h2><p>Now we can already generate random walks. The setup follows previous sections.</p><pre><code class="language-julia hljs">timestep = 0.1
+extent = 1e6 # just a large value to stay away from boundaries
+nmicrobes = 8
+# initialise all microbes at same position
+microbes = [Microbe{1}(id=i, pos=(L/2,)) for i in 1:nmicrobes]
+
+model = initialise_model(;
+    microbes,
+    timestep,
+    extent, periodic = false,
+    random_positions = false
+)</code></pre><p>Now we need to define the <code>adata</code> variable to choose what observables we want to track, throughout the simulation, for each agent in the system. In our case, only the position field</p><pre><code class="language-julia hljs">adata = [:pos]</code></pre><p>Now we can run the simulation; the <code>microbe_step!</code> function will take care of the stepping and reorientations according to the properties of each microbe:</p><pre><code class="language-julia hljs">nsteps = 1000
+adf, = run!(model, microbe_step!, nsteps; adata)</code></pre><pre><code class="language-julia hljs">x = first.(vectorize_adf_measurement(adf, :pos))&#39;
+plot(
+    (0:nsteps).*dt, x,
+    legend = false,
+    xlab = &quot;time&quot;,
+    ylab = &quot;position&quot;
+)</code></pre><p><img src="../random_walk_1d.png" alt="One-dimensional random walks of 8 microbes starting from same position"/></p><p>Similarly for a two-dimensional random walk, using run-reverse-flick motility and non-zero rotational diffusion:</p><pre><code class="language-julia hljs">dt = 0.1
+L = 1000.0
+nmicrobes = 1
+microbes = [
+    Microbe{2}(
+        id=i, pos=(L/2,L/2),
+        motility=RunReverseFlick(),
+        rotational_diffusivity = 0.2,
+        ) for i in 1:nmicrobes
+]
+
+model = initialise_model(;
+    microbes,
+    timestep = dt,
+    extent, periodic = false,
+    random_positions = false,
+)
+
+nsteps = 500
+adata = [:pos]
+adf, = run!(model, microbe_step!, nsteps; adata)
+
+traj = vectorize_adf_measurement(adf, :pos)
+x = first.(traj)&#39;
+y = last.(traj)&#39;
+plot(
+    x, y, line_z = (0:nsteps).*dt,
+    legend=false,
+    xlab = &quot;x&quot;, ylab = &quot;y&quot;,
+    colorbar = true, colorbar_title = &quot;time&quot;
+)</code></pre><p><img src="../random_walk_2d.png" alt="Two-dimensional random walk using run-reverse-flick motility"/></p><p>Microbes with different motile patterns can also be combined in the same simulation, without extra complications or computational costs:</p><pre><code class="language-julia hljs">n = 3
+microbes_runtumble = [Microbe{2}(id=i, motility=RunTumble()) for i in 1:n]
+microbes_runrev = [Microbe{2}(id=n+i, motility=RunReverse()) for i in 1:n]
+microbes_runrevflick = [Microbe{2}(id=2n+1, motility=RunReverseFlick()) for i in 1:n]
+microbes = vcat(
+    microbes_runtumble, microbes_runrev, microbes_runrevflick
+)</code></pre><h2 id="Chemotaxis-in-a-linear-gradient"><a class="docs-heading-anchor" href="#Chemotaxis-in-a-linear-gradient">Chemotaxis in a linear gradient</a><a id="Chemotaxis-in-a-linear-gradient-1"></a><a class="docs-heading-anchor-permalink" href="#Chemotaxis-in-a-linear-gradient" title="Permalink"></a></h2><p>We will now reproduce a classical chemotaxis assay: bacteria in a rectangular channel with a linear attractant gradient.</p><p><code>Bactos.jl</code> requires three functions to be defined for the built-in chemotaxis models to work: <code>concentration_field</code>, <code>concentration_gradient</code>, and <code>concentration_time_derivative</code>; all three need to take the two arguments <code>(pos, model)</code>. First we need to define our concentration field and its gradient (we don&#39;t define its time derivative since it will be held constant). We will use a linear gradient in the <code>x</code> direction. Here we can define also the gradient analytically, in more complex cases it can be evaluated numerically through the finite difference interface.</p><pre><code class="language-julia hljs">concentration_field(x,y,C₀,∇C) = C₀ + ∇C*x
+function concentration_field(pos, model)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_field(x, y, C₀, ∇C)
+end
+concentration_gradient(x,y,C₀,∇C) = [∇C, 0.0]
+function concentration_gradient(pos, model)
+    x, y = pos
+    C₀ = model.C₀
+    ∇C = model.∇C
+    concentration_gradient(x, y, C₀, ∇C)
+end</code></pre><p>We choose the parameters, initialise the population (with two distinct chemotaxers) with all bacteria to the left of the channel, and setup the model providing the functions for our concentration field to the <code>model_properties</code> dictionary.</p><pre><code class="language-julia hljs">timestep = 0.1 # s
+Lx, Ly = 1000.0, 500.0 # μm
+extent = (Lx, Ly) # μm
+periodic = false
+
+n = 50
+microbes_brumley = [
+    Brumley{2}(id=i, pos=(0,rand()*Ly), chemotactic_precision=1)
+    for i in 1:n
+]
+microbes_brown = [
+    BrownBerg{2}(id=n+i, pos=(0,rand()*Ly))
+    for i in 1:n
+]
+microbes = [microbes_brumley; microbes_brown]
+
+C₀ = 0.0 # μM
+∇C = 0.01 # μM/μm
+model_properties = Dict(
+    :concentration_field =&gt; concentration_field,
+    :concentration_gradient =&gt; concentration_gradient,
+    :concentration_time_derivative =&gt; (_,_) -&gt; 0.0,
+    
+    :compound_diffusivity =&gt; 500.0, # μm²/s
+    :C₀ =&gt; C₀,
+    :∇C =&gt; ∇C,
+)
+
+model = initialise_model(;
+    microbes,
+    timestep,
+    extent, periodic,
+    model_properties,
+    random_positions = false
+)</code></pre><p>Notice that we also defined an extra property <code>compound_diffusivity</code>. This quantity is <em>required</em> by the models of chemotaxis that use sensing noise (such as <code>Brumley</code>, <code>XieNoisy</code>, <code>CelaniNoisy</code>). <code>500 μm²/s</code> is a typical value for small molecules.</p><p>We can run the simulation as usual and extract the trajectories.</p><pre><code class="language-julia hljs">adata = [:pos]
+nsteps = 1000 # corresponds to 100s
+adf, = run!(model, microbe_step!, nsteps; adata)
+
+traj = vectorize_adf_measurement(adf, :pos)
+x = first.(traj)&#39;
+y = last.(traj)&#39;</code></pre><p>Comparing the trajectories for the two bacterial species we witness a chemotactic race (<code>Brumley</code> in blue, <code>BrownBerg</code> in orange).</p><p><img src="../lineargradient.gif" alt="Chemotactic race in a linear gradient"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../checks/">Validation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Sunday 8 January 2023 21:32">Sunday 8 January 2023</span>. Using Julia version 1.8.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
