@@ -21,12 +21,13 @@ include("utils.jl")
 
 # ABM setup
 include("model.jl")
+
+# Extras
 include("diffeq.jl")
 include("pathfinder.jl")
-
-# Bodies & neighbor lists
 include("obstacles_spheres.jl")
 include("celllistmap.jl")
+include("encounters.jl")
 
 # Stepping
 include("rotations.jl")
